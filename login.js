@@ -1,15 +1,17 @@
 const loginInput = document.getElementById('login');
 const passInput = document.getElementById('password');
 const errorMassage = document.getElementById('errorDiv');
-let fetchRequest = fetch("loginJson.php");
+let fetchRequest = fetch("userInfoJson.php");
 fetchRequest
     .then((response) => {
         return response.json();
+
     })
-    .then((data) => {
-         let password = data.password;
-        let login = data.login;
-        let isError = data.isError;
+    .then((result) => {
+        let password = result.password;
+        let login = result.login;
+        let isError = result.isError;
+        let errorMessage = result.ErrorMessage;
         if(isError) {
             loginInput.classList.add('is-invalid');
             loginInput.value = login;
@@ -17,7 +19,7 @@ fetchRequest
             passInput.value = password;
 
             const pEl = document.createElement('p');
-            pEl.innerText = "Login or Password is invalid";
+            pEl.innerText = errorMessage;
             errorMassage.appendChild(pEl);
         }
     });
