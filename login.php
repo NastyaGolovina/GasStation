@@ -20,6 +20,7 @@
                 $_SESSION["login"] = $row['Login'];
                 $_SESSION["password"] = $row['Password'];
                 $_SESSION["Status"] = $row['Status'];
+                $_SESSION["PermissionID"] = $row['PermissionID'];
 
                 if($row['PermissionID'] == 'ADMINISTRATOR'){
                     header('location:adminHomePage.html');

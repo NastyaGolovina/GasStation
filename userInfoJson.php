@@ -7,5 +7,6 @@
         'NIF' => isset($_SESSION['NIF']) ? $_SESSION['NIF'] : '',
         'login' => isset($_SESSION['login']) ? $_SESSION['login'] : '',
         'password' => isset($_SESSION['password']) ? $_SESSION['password'] : '',
-        'Status' => isset($_SESSION['Status']) ? $_SESSION['Status'] : ''
+        'Status' => isset($_SESSION['Status']) ? $_SESSION['Status'] : '',
+        'PermissionID' => isset($_SESSION['PermissionID']) ? $_SESSION['PermissionID'] : ''
     ]);
