@@ -1,13 +1,13 @@
 const loginInput = document.getElementById('login');
 const passInput = document.getElementById('password');
 const errorMassage = document.getElementById('errorDiv');
-let fetchRequest = fetch("userInfoJson.php");
-fetchRequest
+fetch("loginJson.php")
     .then((response) => {
         return response.json();
 
     })
     .then((result) => {
+        console.log(result);
         let password = result.password;
         let login = result.login;
         let isError = result.isError;

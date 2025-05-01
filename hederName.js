@@ -1,6 +1,5 @@
 const nameEl = document.getElementById('userName');
-let fetchRequest = fetch("userInfoJson.php");
-fetchRequest
+fetch("userInfoJson.php")
     .then((response) => {
         return response.json();
     })

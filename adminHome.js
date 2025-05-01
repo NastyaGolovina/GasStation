@@ -1,6 +1,5 @@
 const h1El = document.getElementsByTagName("h1")[0];
-let fetchRequest = fetch("userInfoJson.php");
-fetchRequest
+fetch("userInfoJson.php")
     .then((response) => {
         return response.json();
     })
