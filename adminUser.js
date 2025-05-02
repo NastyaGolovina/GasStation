@@ -230,7 +230,7 @@ fetch("usersInfoJson.php")
                 removeBtn();
                 activateDeactivatedForm(true);
                 if(nameEl.value === '') {
-                    await fillForm(prevEl,users,customers);
+                    fillForm(prevEl,users,customers);
                 }
                 if (confirm("Do you want to delete this user?")) {
                     window.location.href = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
