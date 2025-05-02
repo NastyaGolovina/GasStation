@@ -130,6 +130,25 @@ function addOptions(parentEl, value, text) {
 
 }
 
+function removeErrorMassage() {
+    nameEl.classList.remove('is-invalid');
+    addressEl.classList.remove('is-invalid');
+    nifEl.classList.remove('is-invalid');
+    emailEl.classList.remove('is-invalid');
+    loginEl.classList.remove('is-invalid');
+    passwordEl.classList.remove('is-invalid');
+    statusEl.classList.remove('is-invalid');
+    permissionEl.classList.remove('is-invalid');
+    loyaltyEl.classList.remove('is-invalid');
+}
+
+
+function setInvalid(el, errorText) {
+    el.classList.add('is-invalid');
+    el.nextElementSibling.innerHTML = errorText;
+}
+
+
 
 fetch("usersInfoJson.php")
     .then((response) => {
@@ -149,14 +168,14 @@ fetch("usersInfoJson.php")
         for(let i = 0 ; i < users.length ; i++) {
             addElInList(users[i].UserID, users[i].Name, users[i].Login, i);
         }
-        if(users.length > 0) {
-            fillForm(prevEl, users, customers);
-        }
         for(let j = 0 ; j < permissions.length; j++) {
             addOptions(permissionEl, permissions[j].PermissionID,  permissions[j].PermissionID);
         }
         for(let k = 0 ; k < loyaltyProgram.length; k++) {
             addOptions(loyaltyEl, loyaltyProgram[k].LoyaltyProgramID,  loyaltyProgram[k].Name);
+        }
+        if(users.length > 0) {
+            fillForm(prevEl, users, customers);
         }
 
 
@@ -165,6 +184,7 @@ fetch("usersInfoJson.php")
         createFormBtn.addEventListener('click', event => {
             // removeActiveClass()
             // prevEl = null;
+            removeErrorMassage();
             cleanInputEl();
             activateDeactivatedForm(false);
             removeBtn();
@@ -173,6 +193,7 @@ fetch("usersInfoJson.php")
 
 
         updateFormBtn.addEventListener('click', event => {
+            removeErrorMassage();
             if(prevEl !== null) {
                 activateDeactivatedForm(false);
                 removeBtn();
@@ -189,10 +210,17 @@ fetch("usersInfoJson.php")
 
 
 
-        deleteFormBtn.addEventListener('click', event => {
+        deleteFormBtn.addEventListener('click', async event => {
+            removeErrorMassage();
             if(prevEl !== null) {
                 removeBtn();
                 activateDeactivatedForm(true);
+                if(nameEl.value === '') {
+                    await fillForm(prevEl,users,customers);
+                }
+                if (confirm("Do you want to delete this user?")) {
+                    window.location.href = "adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete";
+                }
             } else  {
                 alert("You didn't choose nothing. Choose element to delete");
             }
@@ -201,6 +229,7 @@ fetch("usersInfoJson.php")
 
 
         listEl.addEventListener('click', event => {
+            removeErrorMassage();
             activateDeactivatedForm(true);
             removeBtn();
             removeActiveClass();
@@ -234,20 +263,66 @@ fetch("usersInfoJson.php")
 
 
 
-        // document.addEventListener('click', event => {
-        //     if(event.target.id === 'btn-submit') {
-        //         if(event.target.innerText === 'Create') {
-        //             event.preventDefault();
-        //             console.log(formEl.getElementsByTagName("input")[0].value);
-        //             console.log(nameEl.value);
-        //             // const md_id = 123;
-        //
-        //             // formEl.method = "post";
-        //             // formEl.action = `login.php?md_id=${md_id}`;
-        //             // formEl.submit();
-        //         }
-        //     }
-        // });
+        document.addEventListener('click', event => {
+            removeErrorMassage();
+            if(event.target.id === 'btn-submit') {
+                if(event.target.innerText === 'Create' || event.target.innerText === 'Update') {
+                    event.preventDefault();
+                    if(nameEl.value !== '' && nameEl.value.length <= 100) {
+                        if(addressEl.value !== '' && addressEl.value.length <= 255) {
+                            console.log(typeof nifEl.value);
+                            if(nifEl.value.length === 9 && typeof +nifEl.value === "number" &&  !nifEl.value.includes('.')) {
+                                if(emailEl.value.length <= 100 && emailEl.value.includes('@')) {
+                                    let loginFlag = true;
+                                    for (let a = 0 ; a < users.length; a++) {
+                                        if(users[a].Login === loginEl.value) {
+                                            if(event.target.innerText === 'Update') {
+                                                if(users[a].UserID !== prevEl.dataset.dataUserId) {
+                                                    loginFlag = false;
+                                                }
+                                            }
+                                            loginFlag = false;
+                                        }
+                                        break;
+                                    }
+                                    if (loginFlag = true && loginEl.value !== '' && nameEl.value.length <= 30) {
+                                        if(passwordEl.value.length <= 30 && passwordEl.value !== '') {
+                                            if(permissionEl.value !== '') {
+                                                if((permissionEl.value === 'CUSTOMER' && loyaltyEl.value !== "") || (permissionEl.value !== 'CUSTOMER')) {
+                                                    formEl.method = "post";
+                                                    if(event.target.innerText === 'Update') {
+                                                        formEl.action = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=${event.target.innerText}`;
+                                                    } else {
+                                                        formEl.action = `adminUser.php?action=${event.target.innerText}`;
+                                                    }
+                                                    formEl.submit();
+                                                } else {
+                                                    setInvalid(loyaltyEl,"Set Loyalty Program");
+                                                }
+                                            } else {
+                                                setInvalid(permissionEl,"Set Permission");
+                                            }
+                                        } else  {
+                                            setInvalid(passwordEl,"Password no more then 30 symbols");
+                                        }
+                                    } else {
+                                        setInvalid(loginEl,"Login must be unique and no more then 30 symbols");
+                                    }
+                                } else {
+                                    setInvalid(emailEl, 'Email is name@example.com (no more then 100 symbols)');
+                                }
+                            } else {
+                                setInvalid(nifEl, 'NIF is nine-digit number');
+                            }
+                        } else {
+                            setInvalid(addressEl, 'Address length from 1 to 255 symbols');
+                        }
+                    } else {
+                        setInvalid(nameEl, 'Name length from 1 to 100 symbols');
+                    }
+                }
+            }
+        });
     });
 
 
