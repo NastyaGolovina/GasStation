@@ -13,6 +13,7 @@ const listEl = document.getElementById('userlist');
 const permissionEl = document.getElementById("permission")
 const formEl = document.getElementsByTagName("form")[0];
 let prevEl = null;
+let prevIsCreate = false;
 
 function activateDeactivatedForm(isDisabled) {
     nameEl.disabled = isDisabled;
@@ -190,6 +191,7 @@ fetch("usersInfoJson.php")
 
 
         createFormBtn.addEventListener('click', event => {
+            prevIsCreate = true;
             // removeActiveClass()
             // prevEl = null;
             removeErrorMassage();
@@ -209,7 +211,8 @@ fetch("usersInfoJson.php")
                 }
                 removeBtn();
                 createBtn('Update');
-                if(nameEl.value === '') {
+                if(prevIsCreate) {
+                    prevIsCreate = false;
                     fillForm(prevEl,users,customers);
                     if(permissionEl.value === "CUSTOMER") {
                         loyaltyEl.disabled = false;
@@ -225,13 +228,14 @@ fetch("usersInfoJson.php")
 
 
         deleteFormBtn.addEventListener('click', async event => {
+            if(prevIsCreate) {
+                prevIsCreate = false;
+                window.location.reload();
+            }
             removeErrorMassage();
             if(prevEl !== null) {
                 removeBtn();
                 activateDeactivatedForm(true);
-                if(nameEl.value === '') {
-                    fillForm(prevEl,users,customers);
-                }
                 if (confirm("Do you want to delete this user?")) {
                     window.location.href = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
                 }
@@ -243,6 +247,7 @@ fetch("usersInfoJson.php")
 
 
         listEl.addEventListener('click', event => {
+            prevIsCreate = false;
             removeErrorMassage();
             activateDeactivatedForm(true);
             removeBtn();
