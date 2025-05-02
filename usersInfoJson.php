@@ -1,0 +1,66 @@
+<?php
+    include ('DBConnection.php');
+
+    $tablesToJson =[];
+
+    $consultation = "select * from user";
+    if (!empty($connection)) {
+        $result = mysqli_query($connection,$consultation);
+    }
+    if($result->num_rows > 0){
+        $user = [];
+        while ($row = $result->fetch_assoc()) {
+            $user[] = $row;
+        }
+    } else {
+        $user[] = [];
+    }
+    $tablesToJson['userTable'] = $user;
+
+    $consultation = "select * from permission";
+    if (!empty($connection)) {
+        $result = mysqli_query($connection,$consultation);
+    }
+    if($result->num_rows > 0){
+        $permission = [];
+        while ($row = $result->fetch_assoc()) {
+            $permission[] = $row;
+        }
+    } else {
+        $permission[] = [];
+    }
+    $tablesToJson['permissionTable'] = $permission;
+
+    $consultation = "select * from customer";
+    if (!empty($connection)) {
+        $result = mysqli_query($connection,$consultation);
+    }
+    if($result->num_rows > 0){
+        $customer = [];
+        while ($row = $result->fetch_assoc()) {
+            $customer[] = $row;
+        }
+    } else {
+        $customer[] = [];
+    }
+
+    $tablesToJson['customerTable'] = $customer;
+
+    $consultation = "select * from loyaltyprogram";
+    if (!empty($connection)) {
+        $result = mysqli_query($connection,$consultation);
+    }
+    if($result->num_rows > 0){
+        $loyaltyProgram = [];
+        while ($row = $result->fetch_assoc()) {
+            $loyaltyProgram[] = $row;
+        }
+    } else {
+        $loyaltyProgram[] = [];
+    }
+
+
+    $tablesToJson['LoyaltyProgramTable'] = $loyaltyProgram;
+
+    echo json_encode($tablesToJson);
+

@@ -16,6 +16,18 @@ CREATE TABLE User (
     FOREIGN KEY (PermissionID) REFERENCES Permission(PermissionID)
 );
 
+CREATE TABLE LoyaltyProgram (
+    LoyaltyProgramID INT PRIMARY KEY AUTO_INCREMENT, 
+    Name VARCHAR(100)
+);
+
+CREATE TABLE Customer (
+    CustomerID INT PRIMARY KEY AUTO_INCREMENT, 
+    UserID INT, 
+    LoyaltyProgramID INT,
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (LoyaltyProgramID) REFERENCES LoyaltyProgram(LoyaltyProgramID)
+);
 
 INSERT INTO Permission (PermissionID, Description)
 VALUES ('CUSTOMER', 'CUSTOMER'),
@@ -28,4 +40,7 @@ VALUES ('CUSTOMER', 'CUSTOMER'),
 INSERT INTO User (Name, Address , NIF,Email,Login,Password,Status,PermissionID)
 VALUES ('Gandalf the Grey', '123 Middle-Earth Lane, Shire, ME 00001','123456789','gandalf.grey@istari.org', 'gandalf_grey',
 'YouShallNotPass!123', true , 'ADMINISTRATOR');
+
+INSERT INTO LoyaltyProgram (Name)
+VALUES ('Member Program');
         
