@@ -43,4 +43,8 @@ VALUES ('Gandalf the Grey', '123 Middle-Earth Lane, Shire, ME 00001','123456789'
 
 INSERT INTO LoyaltyProgram (Name)
 VALUES ('Member Program');
+
+
+
+        
         

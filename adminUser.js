@@ -14,8 +14,6 @@ const permissionEl = document.getElementById("permission")
 const formEl = document.getElementsByTagName("form")[0];
 let prevEl = null;
 
-let userTable = [];
-
 function activateDeactivatedForm(isDisabled) {
     nameEl.disabled = isDisabled;
     addressEl.disabled = isDisabled;
@@ -42,23 +40,23 @@ function cleanInputEl() {
 }
 
 
-function fillInputEl(name,address, nif , email, login, password, status, permission , loyaltyprogram) {
+function fillInputEl(name,address, nif , email, login, password, status, permission , loyaltyProgram) {
     nameEl.value = name;
     addressEl.value = address;
     nifEl.value = nif;
     emailEl.value = email;
     loginEl.value = login;
     passwordEl.value = password;
-    statusEl.checked = status;
+    statusEl.checked = +status;
     permissionEl.value = permission;
-    loyaltyEl.value = loyaltyprogram;
+    loyaltyEl.value = loyaltyProgram;
 }
 
 function fillForm(currentEl,users,customers) {
     let lProgramID = '';
     for(let i = 0; i < users.length; i++) {
         if(users[i].UserID === currentEl.dataset.dataUserId) {
-            if(users[i].Permission === "CUSTOMER") {
+            if(users[i].PermissionID === "CUSTOMER") {
                 for(let j = 0; j < customers.length ; j++) {
                     if(customers[j].UserID === users[i].UserID) {
                         lProgramID = customers[j].LoyaltyProgramID;
@@ -84,7 +82,7 @@ function removeActiveClass() {
 function createBtn(btnName) {
     const btnEl = document.createElement("button");
     btnEl.className = "w-100 btn btn-primary btn-lg";
-    btnEl.type = "submit";
+    btnEl.type = "button";
     btnEl.id = 'btn-submit';
     btnEl.innerText = btnName;
     formEl.appendChild(btnEl);
@@ -147,7 +145,17 @@ function setInvalid(el, errorText) {
     el.classList.add('is-invalid');
     el.nextElementSibling.innerHTML = errorText;
 }
+fetch("DBErrorUserJson.php")
+    .then((response) => {
+    return response.json();
 
+})
+    .then((result) => {
+        if(result.isError) {
+            document.getElementById('errorMsg').style.display = 'inline';
+            document.getElementById('errorMsg').innerText = "Something went wrong";
+        }
+    });
 
 
 fetch("usersInfoJson.php")
@@ -196,10 +204,16 @@ fetch("usersInfoJson.php")
             removeErrorMassage();
             if(prevEl !== null) {
                 activateDeactivatedForm(false);
+                if(permissionEl.value === "CUSTOMER") {
+                    loyaltyEl.disabled = false;
+                }
                 removeBtn();
                 createBtn('Update');
                 if(nameEl.value === '') {
                     fillForm(prevEl,users,customers);
+                    if(permissionEl.value === "CUSTOMER") {
+                        loyaltyEl.disabled = false;
+                    }
                 }
             }  else {
                 alert("You didn't choose nothing. Choose element ti update");
@@ -219,7 +233,7 @@ fetch("usersInfoJson.php")
                     await fillForm(prevEl,users,customers);
                 }
                 if (confirm("Do you want to delete this user?")) {
-                    window.location.href = "adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete";
+                    window.location.href = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
                 }
             } else  {
                 alert("You didn't choose nothing. Choose element to delete");
@@ -253,6 +267,7 @@ fetch("usersInfoJson.php")
                     if(event.target.value === "CUSTOMER" ) {
                         loyaltyEl.disabled = false;
                     } else {
+                        loyaltyEl.value = '';
                         loyaltyEl.disabled = true;
                     }
                 }
@@ -264,6 +279,7 @@ fetch("usersInfoJson.php")
 
 
         document.addEventListener('click', event => {
+            let loginFlag = true;
             removeErrorMassage();
             if(event.target.id === 'btn-submit') {
                 if(event.target.innerText === 'Create' || event.target.innerText === 'Update') {
@@ -273,27 +289,28 @@ fetch("usersInfoJson.php")
                             console.log(typeof nifEl.value);
                             if(nifEl.value.length === 9 && typeof +nifEl.value === "number" &&  !nifEl.value.includes('.')) {
                                 if(emailEl.value.length <= 100 && emailEl.value.includes('@')) {
-                                    let loginFlag = true;
-                                    for (let a = 0 ; a < users.length; a++) {
-                                        if(users[a].Login === loginEl.value) {
+                                    for (let i = 0 ; i < users.length; i++) {
+                                        if(users[i].Login === loginEl.value) {
                                             if(event.target.innerText === 'Update') {
-                                                if(users[a].UserID !== prevEl.dataset.dataUserId) {
+                                                if(users[i].UserID !== prevEl.dataset.dataUserId) {
                                                     loginFlag = false;
+                                                    break;
                                                 }
+                                            } else {
+                                                loginFlag = false;
                                             }
-                                            loginFlag = false;
+                                            break;
                                         }
-                                        break;
                                     }
-                                    if (loginFlag = true && loginEl.value !== '' && nameEl.value.length <= 30) {
+                                    if (loginFlag === true && loginEl.value !== '' && nameEl.value.length <= 30) {
                                         if(passwordEl.value.length <= 30 && passwordEl.value !== '') {
                                             if(permissionEl.value !== '') {
                                                 if((permissionEl.value === 'CUSTOMER' && loyaltyEl.value !== "") || (permissionEl.value !== 'CUSTOMER')) {
                                                     formEl.method = "post";
                                                     if(event.target.innerText === 'Update') {
-                                                        formEl.action = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=${event.target.innerText}`;
+                                                        formEl.action = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=update`;
                                                     } else {
-                                                        formEl.action = `adminUser.php?action=${event.target.innerText}`;
+                                                        formEl.action = `adminUser.php?action=create`;
                                                     }
                                                     formEl.submit();
                                                 } else {
