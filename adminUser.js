@@ -14,7 +14,6 @@ const permissionEl = document.getElementById("permission")
 const formEl = document.getElementsByTagName("form")[0];
 let prevEl = null;
 let prevIsCreate = false;
-
 function activateDeactivatedForm(isDisabled) {
     nameEl.disabled = isDisabled;
     addressEl.disabled = isDisabled;
@@ -227,22 +226,27 @@ fetch("usersInfoJson.php")
 
 
 
-        deleteFormBtn.addEventListener('click', async event => {
+
+        deleteFormBtn.addEventListener('click', () => {
+            console.log(prevIsCreate);
             if(prevIsCreate) {
                 prevIsCreate = false;
                 window.location.reload();
-            }
-            removeErrorMassage();
-            if(prevEl !== null) {
-                removeBtn();
-                activateDeactivatedForm(true);
-                if (confirm("Do you want to delete this user?")) {
-                    window.location.href = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
+            } else {
+                console.log(prevIsCreate);
+                removeErrorMassage();
+                if(prevEl !== null) {
+                    removeBtn();
+                    activateDeactivatedForm(true);
+                    if (confirm("Do you want to delete this user?")) {
+                        window.location.href = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
+                    }
+                } else  {
+                    alert("You didn't choose nothing. Choose element to delete");
                 }
-            } else  {
-                alert("You didn't choose nothing. Choose element to delete");
             }
         });
+
 
 
 
