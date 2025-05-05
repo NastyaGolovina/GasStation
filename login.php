@@ -27,7 +27,7 @@
                 } elseif ($row['PermissionID'] == 'CUSTOMER') {
                     //header('location:adminHomePage.html');
                 } elseif ($row['PermissionID'] == 'EMPLOYEE_ADMIN') {
-                    //header('location:adminHomePage.html');
+                    header('location:employeeAdminHome.html');
                 } elseif ($row['PermissionID'] == 'EMPLOYEE_SERVICES') {
                     //header('location:adminHomePage.html');
                 } elseif ($row['PermissionID'] == 'OPERATOR') {
