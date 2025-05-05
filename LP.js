@@ -68,6 +68,7 @@ function createBtn(btnName) {
 
 function removeErrorMassage() {
     nameEl.classList.remove('is-invalid');
+    descEl.classList.remove('is-invalid');
 }
 
 function setInvalid(el, errorText) {
@@ -186,7 +187,21 @@ document.addEventListener('click', event => {
     if (event.target.id === 'btn-submit') {
         event.preventDefault();
 
-        if (nameEl.value && nameEl.value.length <= 100) {
+        let isValid = true;
+
+        // Name validation
+        if (!nameEl.value || nameEl.value.length > 100) {
+            setInvalid(nameEl, 'Name must be between 1 and 100 characters.');
+            isValid = false;
+        }
+
+        // Description validation
+        if (!descEl.value || descEl.value.length > 255) {
+            setInvalid(descEl, 'Description must be between 1 and 255 characters.');
+            isValid = false;
+        }
+
+        if (isValid) {
             const formData = new FormData();
             formData.append("name", nameEl.value);
             formData.append("description", descEl.value);
@@ -212,8 +227,6 @@ document.addEventListener('click', event => {
                         alert(data.error || "Operation failed.");
                     }
                 });
-        } else {
-            setInvalid(nameEl, 'Name must be between 1 and 100 characters.');
         }
     }
 });
