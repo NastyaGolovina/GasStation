@@ -53,7 +53,7 @@ VALUES ('Member Program');
 
 UPDATE LoyaltyProgram
 SET Description = 'This is a basic loyalty program for members.'
-WHERE Name = 'Member Program';
+WHERE LoyaltyProgramID = 1;
 
 
 
