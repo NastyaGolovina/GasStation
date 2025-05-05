@@ -26,6 +26,7 @@ if (empty($connection)) {
 if ($action === 'create' || $action === 'update') {
     // Validate and sanitize input
     $name = isset($_POST["name"]) ? safeInput($connection, $_POST["name"]) : '';
+    $description = isset($_POST["description"]) ? safeInput($connection, $_POST["description"]) : '';
 
     if ($name === '') {
         echo json_encode(['error' => 'Name is required']);
@@ -33,7 +34,7 @@ if ($action === 'create' || $action === 'update') {
     }
 
     if ($action === 'create') {
-        $query = "INSERT INTO LoyaltyProgram (Name) VALUES ('$name')";
+        $query = "INSERT INTO LoyaltyProgram (Name, Description) VALUES ('$name', '$description')";
         if ($connection->query($query)) {
             echo json_encode(['success' => true, 'id' => $connection->insert_id]);
         } else {
@@ -48,7 +49,7 @@ if ($action === 'create' || $action === 'update') {
             exit;
         }
 
-        $query = "UPDATE LoyaltyProgram SET Name = '$name' WHERE LoyaltyProgramID = '$lp_id'";
+        $query = "UPDATE LoyaltyProgram SET Name = '$name', Description = '$description' WHERE LoyaltyProgramID = '$lp_id'";
         if ($connection->query($query)) {
             echo json_encode(['success' => true]);
         } else {

@@ -21,6 +21,13 @@ CREATE TABLE LoyaltyProgram (
     Name VARCHAR(100)
 );
 
+ALTER TABLE LoyaltyProgram
+    ADD Description TEXT;
+
+ALTER TABLE LoyaltyProgram
+    MODIFY Description VARCHAR(255);
+
+
 CREATE TABLE Customer (
     CustomerID INT PRIMARY KEY AUTO_INCREMENT, 
     UserID INT, 
@@ -43,6 +50,10 @@ VALUES ('Gandalf the Grey', '123 Middle-Earth Lane, Shire, ME 00001','123456789'
 
 INSERT INTO LoyaltyProgram (Name)
 VALUES ('Member Program');
+
+UPDATE LoyaltyProgram
+SET Description = 'This is a basic loyalty program for members.'
+WHERE Name = 'Member Program';
 
 
 
