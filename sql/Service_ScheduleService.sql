@@ -49,8 +49,3 @@ VALUES (
         'Fuel'
        );
 
-INSERT INTO customer (UserID, LoyaltyProgramID)
-VALUES (
-        1,
-        1
-       );
