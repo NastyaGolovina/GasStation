@@ -17,7 +17,7 @@
                             <a href="employeeServicesHomePage.html" class="nav-link link-light fw-bold px-2">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a href="employeeServiceCodeEditor.html" class="nav-link link-light px-2">Users</a>
+                            <a href="employeeServiceCodeEditor.html" class="nav-link link-light px-2">Code Editor</a>
                         </li>
                     </ul>
                     <div id="userName" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
@@ -33,5 +33,24 @@
                 </div>
             </div>
         </header>
+
+        <div class="container-fluid">
+            <p class="display-6">Code Editor</p>
+            <div class="form-floating mb-3">
+                <textarea class="form-control" placeholder="Leave a your code here" id="code" style="height: 300px"></textarea>
+                <label for="code">Enter your code</label>
+            </div>
+            <div class="d-grid gap-2 d-md-block mb-3">
+                <button class="btn btn-primary" id="sendRequest" type="button">Send Request</button>
+                <button class="btn btn-primary" id="refreshOutput" type="button">Refresh Output</button>
+            </div>
+            <div>
+                <p class="display-6">Output</p>
+                <div id="output" class="output"></div>
+            </div>
+
+        </div>
+        <script src="./hederName.js"></script>
+        <script src="mployeeServiceCodeEditor.js"></script>
     </body>
 </html>
