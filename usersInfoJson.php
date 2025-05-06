@@ -46,21 +46,32 @@
 
     $tablesToJson['customerTable'] = $customer;
 
-    $consultation = "select * from loyaltyprogram";
-    if (!empty($connection)) {
-        $result = mysqli_query($connection,$consultation);
-    }
-    if($result->num_rows > 0){
-        $loyaltyProgram = [];
+$consultation = "SELECT * FROM loyaltyprogram";
+if (!empty($connection)) {
+    $result = mysqli_query($connection, $consultation);
+    $loyaltyProgram = [];
+    if ($result && $result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $loyaltyProgram[] = $row;
         }
     } else {
         $loyaltyProgram[] = [];
     }
-
-
     $tablesToJson['LoyaltyProgramTable'] = $loyaltyProgram;
+}
 
-    echo json_encode($tablesToJson);
+$consultation = "SELECT * FROM service";
+if (!empty($connection)) {
+    $result = mysqli_query($connection, $consultation);
+    $Service = [];
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $Service[] = $row;
+        }
+    } else {
+        $Service[] = [];
+    }
+    $tablesToJson['ServiceTable'] = $Service;
+}
 
+echo json_encode($tablesToJson);
