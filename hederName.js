@@ -1,4 +1,3 @@
-console.log("hii")
 fetch("userInfoJson.php")
     .then((response) => {
         return response.json();
