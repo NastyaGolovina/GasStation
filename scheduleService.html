@@ -26,14 +26,14 @@
           <a href="" class="nav-link link-light px-2">Schedule Service</a>
         </li>
       </ul>
-      <div id="eaName" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
+      <div id="userName" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white">
       </div>
       <div class="dropdown text-end">
         <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" style="filter: invert(1)" data-bs-toggle="dropdown" aria-expanded="false">
           <img src="img/person-circle.svg" alt="mdo" width="32" height="32" class="rounded-circle">
         </a>
         <ul class="dropdown-menu text-small" style="">
-          <li><a class="dropdown-item" href="#">Sign out</a></li>
+          <li><a class="dropdown-item" href="login.html">Sign out</a></li>
         </ul>
       </div>
     </div>
@@ -71,7 +71,7 @@
           <div class="row g-3">
             <div class="col-sm-12">
               <label for="dt" class="form-label">Date</label>
-              <input type="text" class="form-control" id="dt" name="date" required disabled>
+              <input type="date" class="form-control" id="dt" name="date" required disabled>
               <div class="invalid-feedback"></div>
             </div>
 
@@ -95,13 +95,20 @@
 
             <div class="col-sm-12">
               <label for="status" class="form-label">Status</label>
-              <input type="text" class="form-control" id="status" name="status" required >
+              <input type="text" class="form-control" id="status" name="status" required disabled>
               <div class="invalid-feedback"></div>
             </div>
 
             <div class="col-sm-12">
+              <label for="es" class="form-label">Employee Service</label>
+              <input type="text" class="form-control" id="es" name="status" required disabled >
+              <div class="invalid-feedback"></div>
+            </div>
+
+
+            <div class="col-sm-12">
               <label for="mt" class="form-label">Material</label>
-              <input type="text" class="form-control" id="mt" name="material" required >
+              <input type="text" class="form-control" id="mt" name="material" required disabled>
               <div class="invalid-feedback"></div>
             </div>
 
@@ -114,7 +121,7 @@
     </div>
   </div>
 </div>
-<script src="adminUser.js"></script>
+<script src="ScheduleService.js"></script>
 <script src="hederName.js"></script>
 </body>
 </html>
