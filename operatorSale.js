@@ -111,7 +111,6 @@ function removeActiveClass() {
     }
 }
 function createBtn(btnName) {
-    console.log(formEl)
     const btnEl = document.createElement("button");
     btnEl.className = "w-100 btn btn-primary btn-lg";
     btnEl.type = "button";
@@ -184,6 +183,7 @@ function createCard(id, qty , price, product, disabled, products) {
     const  inputQtyEl = document.createElement("input");
     inputQtyEl.type = "text";
     inputQtyEl.className = "form-control";
+    inputQtyEl.name ="qty[]";
     inputQtyEl.value = qty;
     inputQtyEl.disabled = disabled;
     const divQtyInvalid = document.createElement("div");
@@ -199,7 +199,7 @@ function createCard(id, qty , price, product, disabled, products) {
     const inputPriceEl = document.createElement("input");
     inputPriceEl.type = "text";
     inputPriceEl.className = "form-control";
-    inputPriceEl.name ="qty[]";
+    inputPriceEl.name ="price[]";
     inputPriceEl.value = price;
     inputPriceEl.disabled = true;
     const divPriceInvalid = document.createElement("div");
@@ -214,7 +214,7 @@ function createCard(id, qty , price, product, disabled, products) {
     labelProductEl.className = "col-12 form-label";
     const selectEl = document.createElement("select");
     selectEl.className = "form-control";
-    selectEl.name = "price[]";
+    selectEl.name = "product[]";
     selectEl.disabled = disabled;
     addOptions(selectEl, '',  "Choose...");
     for(let j = 0 ; j < products.length; j++) {
@@ -228,9 +228,11 @@ function createCard(id, qty , price, product, disabled, products) {
     labelProductEl.appendChild(selectEl);
     labelProductEl.appendChild(divProductInvalid);
 
+
+
+    cardBody.appendChild(labelProductEl);
     cardBody.appendChild(labelQtyEl);
     cardBody.appendChild(labelPriceEl);
-    cardBody.appendChild(labelProductEl);
 
     cardEl.appendChild(cardBody);
 
@@ -295,7 +297,7 @@ fetch("saleInfoJson.php")
         });
 
         addCardEl.addEventListener('click', e => {
-            createCard('', 0, '', '', false, product);
+            createCard('', '', '', '', false, product);
             addBtnToCard(cards[cards.length - 1],'Ok');
             cardDisplay('none');
         });
@@ -304,21 +306,23 @@ fetch("saleInfoJson.php")
 
             if(e.target.dataset.idBtn === "item-btn") {
                 if(e.target.innerText === 'Ok') {
-                    // let selectProduct = cards[cards.length - 1].getElementsByTagName("select")[0].value;
-                    // if(selectProduct.value !== '') {
-                    //     let price = cards[cards.length - 1].getElementsByName('price[]')[0];
-                    //     for(let l = 0; l < product.length; l++) {
-                    //         if(selectProduct.value === product[l].ProductID) {
-                    //             price.value = cards[cards.length - 1].getElementsByName('qty[]')[0] * product[l].ProductID;
-                    //         }
-                    //     }
-                    // } else {
-                    //     setInvalid(selectProduct, 'Select product for item');
-                    // }
+                    let selectProduct = cards[cards.length - 1].getElementsByTagName("select")[0];
+                    if(selectProduct.value !== '') {
+                        let price = cards[cards.length - 1].querySelector('input[name="price[]"]');
+                        for(let l = 0; l < product.length; l++) {
+                            if(selectProduct.value === product[l].ProductID) {
+                                price.value = cards[cards.length - 1].querySelector('input[name="qty[]"]').value * product[l].ProductID;
+                            }
+                        }
 
-                    e.target.remove();
-                    addBtnToCard(cards[cards.length - 1],'Delete')
-                    cardDisplay('inline');
+                        e.target.remove();
+                        addBtnToCard(cards[cards.length - 1],'Delete')
+                        cardDisplay('inline');
+                    } else {
+                        setInvalid(selectProduct, 'Select product for item');
+                    }
+
+
                 }
             }
         })
