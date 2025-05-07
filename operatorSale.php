@@ -45,8 +45,7 @@
                         }
                     }
                 }
-
-                if($cardId !== null) {
+                if(!empty($cardId)) {
                     $consultation = "INSERT INTO Movement_Card (Date, PointsQnt, CustomerID, 
                                                 LoyaltyCardID, PrizeProductID, LoyaltyProgramID, SaleID) VALUES
                                                 ('".$date."',".$pointQty.", ".$customer.", ".$cardId.", " .(!empty($prize) ? $prize : "NULL"). ", 
@@ -63,6 +62,8 @@
                     } else {
                         setError();
                     }
+                } else {
+                    header('location:operatorSalePage.html');
                 }
             } else {
                 setError();
