@@ -255,6 +255,23 @@ function addBtnToCard(card, name) {
     card.querySelector(".card-body").appendChild(btn);
 }
 
+
+function validateProduct(el) {
+    if(el.value !== '') {
+       return true
+    }
+    setInvalid(el, 'Select product for item');
+    return  false;
+}
+
+function validateQty(el) {
+    if(el.value !== '' && typeof +el.value === "number" &&  !el.value.includes('.') && +el.value >= 0) {
+        return true
+    }
+    setInvalid(el, 'Put quantity of product');
+    return  false;
+}
+
 fetch("saleInfoJson.php")
     .then((response) => {
         return response.json();
@@ -306,23 +323,24 @@ fetch("saleInfoJson.php")
 
             if(e.target.dataset.idBtn === "item-btn") {
                 if(e.target.innerText === 'Ok') {
+                    let itemCost = 0;
                     let selectProduct = cards[cards.length - 1].getElementsByTagName("select")[0];
-                    if(selectProduct.value !== '') {
+                    selectProduct.classList.remove('is-invalid');
+                    let qty = cards[cards.length - 1].querySelector('input[name="qty[]"]');
+                    qty.classList.remove('is-invalid');
+                    if(validateProduct(selectProduct) && validateQty(qty)) {
                         let price = cards[cards.length - 1].querySelector('input[name="price[]"]');
                         for(let l = 0; l < product.length; l++) {
                             if(selectProduct.value === product[l].ProductID) {
-                                price.value = cards[cards.length - 1].querySelector('input[name="qty[]"]').value * product[l].ProductID;
+                                itemCost = cards[cards.length - 1].querySelector('input[name="qty[]"]').value * product[l].ProductID;
                             }
                         }
-
+                        price.value = itemCost;
+                        totalAmountEl.value = + totalAmountEl.value + +itemCost;
                         e.target.remove();
                         addBtnToCard(cards[cards.length - 1],'Delete')
                         cardDisplay('inline');
-                    } else {
-                        setInvalid(selectProduct, 'Select product for item');
                     }
-
-
                 }
             }
         })
