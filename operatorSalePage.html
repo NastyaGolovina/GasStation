@@ -7,6 +7,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
         <link rel="icon" type="image/png" href="img/fuel-pump.svg">
         <link rel="stylesheet" href="header.css">
+        <link rel="stylesheet" href="operatorSale.css">
     </head>
     <body>
         <header class="bg-primary p-3 mb-3 border-bottom">
@@ -30,7 +31,7 @@
                     </div>
                     <div class="dropdown text-end">
                         <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" style="filter: invert(1)" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="profilepic.jpg" alt="user" width="32" height="32" class="rounded-circle">
+                            <img src="img/person-circle.svg" alt="mdo" width="32" height="32" class="rounded-circle">
                         </a>
                         <ul class="dropdown-menu text-small" style="">
                             <li><a class="dropdown-item" href="login.html">Sign out</a></li>
@@ -71,7 +72,7 @@
                             <div class="row g-3">
                                 <div class="col-sm-12">
                                     <label for="sale-id" class="form-label">№</label>
-                                    <input type="text" class="form-control" id="sale-id" name="sale-id" required="" disabled>
+                                    <input type="text" class="form-control"  id="sale-id" name="sale-id" readOnly>
                                     <div class="invalid-feedback"></div>
                                 </div>
 
@@ -92,7 +93,8 @@
                                 <div class="col-12">
                                     <label for="total-amount" class="form-label">Total Amount</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="total-amount" name="total-amount" required="" disabled>
+                                        <input type="text" class="form-control" id="total-amount" name="total-amount"
+                                               required="" readOnly>
                                         <span class="input-group-text rounded-end">€</span>
                                         <div class="invalid-feedback"></div>
                                     </div>
@@ -132,18 +134,18 @@
 
                             <div class="col-12">
                                 <label for="card-id" class="form-label">Card №</label>
-                                <input type="text" class="form-control" id="card-id" name="card-id" disabled>
+                                <input type="text" class="form-control" id="card-id" name="card-id" readOnly>
                                 <div class="invalid-feedback"></div>
                             </div>
 
                             <div class="col-12">
                                 <label for="loyalty-program" class="form-label">Loyalty Program</label>
-                                <input type="text" class="form-control" id="loyalty-program" name="loyalty-program" disabled>
+                                <input type="text" class="form-control" id="loyalty-program" name="loyalty-program" readOnly>
                                 <div class="invalid-feedback"></div>
                             </div>
 
                             <div class="col-12">
-                                <label for="point-qty" class="form-label">Point Qty</label>
+                                <label for="point-qty" class="form-label">Point Quantity</label>
                                 <input type="text" class="form-control" id="point-qty" name="point-qty" disabled>
                                 <div class="invalid-feedback"></div>
                             </div>

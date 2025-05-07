@@ -19,18 +19,20 @@ const addCardEl = document.getElementById('addCard');
 
 let prevEl = null;
 let prevIsCreate = false;
+let prevIsUpdate = false;
+let prevPointQty = 0;
 
 let cards = [];
 
 
 
 function activateDeactivatedForm(isDisabled) {
-    saleIdEl.disabled = true;
+    saleIdEl.readOnly = true;
     dateEl.disabled = isDisabled;
     customerEl.disabled = isDisabled;
-    totalAmountEl.disabled = true;
-    cardIdEl.disabled = true;
-    loyaltyEl.disabled = true;
+    totalAmountEl.readOnly = true;
+    cardIdEl.readOnly = true;
+    loyaltyEl.readOnly = true;
     pointQtyEl.disabled = true;
     prizeEl.disabled = true;
 }
@@ -57,6 +59,7 @@ function cleanInputEl() {
     loyaltyEl.dataset.lpId = '';
     pointQtyEl.value = '';
     prizeEl.value = '';
+    prevPointQty = '';
 }
 
 function fillInputEl(saleId,date, customer , totalAmount, cardId, pointQty, prize, loyaltyProgram , lpid) {
@@ -68,6 +71,7 @@ function fillInputEl(saleId,date, customer , totalAmount, cardId, pointQty, priz
     loyaltyEl.value = loyaltyProgram;
     loyaltyEl.dataset.lpId = lpid;
     pointQtyEl.value = pointQty;
+    prevPointQty = pointQty;
     prizeEl.value = prize;
 }
 
@@ -76,7 +80,7 @@ function fillForm(currentEl,sale,customer, item, products) {
 
     lProgram = '';
     for(let i = 0; i < sale.length ; i++) {
-        if(currentEl.dataset.dataSaleId === sale[i].SaleID) {
+        if(currentEl.dataset.SaleId === sale[i].SaleID) {
             if(sale[i].MovementCardID !== null) {
                 for(let j = 0; j < customer.length ; j++) {
                     if(sale[i].LoyaltyProgramID === customer[j].LoyaltyProgramID) {
@@ -94,7 +98,7 @@ function fillForm(currentEl,sale,customer, item, products) {
     }
 
     for(let  k = 0 ; k < item.length; k++) {
-        if(currentEl.dataset.dataSaleId === item[k].SaleID) {
+        if(currentEl.dataset.SaleId === item[k].SaleID) {
             createCard(item[k].ItemID ,item[k].Qty , item[k].Price, item[k].ProductID, true, products);
         }
     }
@@ -126,7 +130,7 @@ function addElInList(saleId, date, i) {
     const strongEl = document.createElement("strong");
     const divText = document.createElement("div");
 
-    aEl.dataset.dataSaleId = saleId;
+    aEl.dataset.SaleId = saleId;
     aEl.className = "list-group-item list-group-item-action py-3 lh-sm";
     divHeader.className = "d-flex w-100 align-items-center justify-content-between";
     strongEl.className = "mb";
@@ -151,10 +155,11 @@ function addOptions(parentEl, value, text) {
 
 }
 
-function removeCard() {
+function removeCards() {
     for(let i = 0 ; i < cards.length ; i++) {
         cards[i].remove();
     }
+    cards = [];
 }
 
 function cardDisplay(display) {
@@ -170,12 +175,19 @@ function setInvalid(el, errorText) {
 
 function createCard(id, qty , price, product, disabled, products) {
     const cardEl = document.createElement("div");
-    cardEl.dataset.cardid=id;
+    cardEl.dataset.cardId=id;
     // cardEl.dataset.card = "itemCard"
     cardEl.className = 'card m-3';
     cardEl.style.width = '18rem';
     const cardBody = document.createElement('div');
     cardBody.className = 'card-body';
+
+
+    const inputCardIdEl = document.createElement("input");
+    inputCardIdEl.type = "hidden";
+    inputCardIdEl.name ="cardId[]";
+    inputCardIdEl.value = id;
+
 
     const labelQtyEl = document.createElement("label");
     labelQtyEl.append('Quantity');
@@ -185,7 +197,7 @@ function createCard(id, qty , price, product, disabled, products) {
     inputQtyEl.className = "form-control";
     inputQtyEl.name ="qty[]";
     inputQtyEl.value = qty;
-    inputQtyEl.disabled = disabled;
+    inputQtyEl.readOnly = disabled;
     const divQtyInvalid = document.createElement("div");
     divQtyInvalid.className = "invalid-feedback";
 
@@ -198,10 +210,11 @@ function createCard(id, qty , price, product, disabled, products) {
     labelPriceEl.append('Price');
     const inputPriceEl = document.createElement("input");
     inputPriceEl.type = "text";
-    inputPriceEl.className = "form-control";
     inputPriceEl.name ="price[]";
     inputPriceEl.value = price;
-    inputPriceEl.disabled = true;
+    // inputPriceEl.disabled = true;
+    inputPriceEl.readOnly = true;
+    inputPriceEl.className = "form-control";
     const divPriceInvalid = document.createElement("div");
     divPriceInvalid.className = "invalid-feedback";
 
@@ -229,7 +242,7 @@ function createCard(id, qty , price, product, disabled, products) {
     labelProductEl.appendChild(divProductInvalid);
 
 
-
+    cardBody.appendChild(inputCardIdEl);
     cardBody.appendChild(labelProductEl);
     cardBody.appendChild(labelQtyEl);
     cardBody.appendChild(labelPriceEl);
@@ -272,6 +285,108 @@ function validateQty(el) {
     return  false;
 }
 
+// function deleteBtnFromCard() {
+//     for(let i = 0 ; i < cards.length ; i++) {
+//         cards[i].querySelector('button[data-idBtn="item-btn"]')[0].remove();
+//     }
+// }
+
+function fillCustomerCard(selectEl, customer) {
+    for(let a = 0 ; a < customer.length ; a++) {
+        console.log(selectEl.value);
+        console.log(customer[a].CustomerID);
+        if(selectEl.value === customer[a].CustomerID) {
+            if(customer[a].LoyaltyCardID !== null) {
+                pointQtyEl.disabled = false;
+                pointQtyEl.dataset.pointQty = customer[a].Points;
+                prizeEl.disabled = false;
+                cardIdEl.value = customer[a].LoyaltyCardID;
+                loyaltyEl.value = customer[a].lpName;
+                loyaltyEl.dataset.lpId = customer[a].LoyaltyProgramID;
+            }
+        }
+    }
+}
+
+
+
+
+function validateDate() {
+    if(dateEl.value !== '') {
+        return true;
+    }
+    setInvalid(dateEl, 'Select date');
+    return  false;
+}
+
+function validateCustomer() {
+    if(customerEl.value !== '') {
+        return true;
+    }
+    setInvalid(customerEl, 'Select customer');
+    return  false;
+}
+
+function validateMovementCard() {
+    if(cardIdEl.value !== '') {
+        if(validatePointQtyEl()) {
+            if(+pointQtyEl.value > 0 && prizeEl.value === '') {
+                return true;
+            } else if(+pointQtyEl.value > 0 && prizeEl.value !== '') {
+                setInvalid(prizeEl, "'If you add points to card you can't select prize");
+                return false;
+            } else if(+pointQtyEl.value < 0 && prizeEl.value !== '') {
+                return true;
+            } else {
+                setInvalid(prizeEl, 'If you subtract points to card select prize');
+                return false;
+            }
+        } else {
+            return  false;
+        }
+    } else {
+        return true;
+    }
+}
+
+function validatePointQtyEl() {
+    if(cardIdEl.value !== '') {
+        if(pointQtyEl.value !== '' && typeof +pointQtyEl.value === "number" &&  !pointQtyEl.value.includes('.')) {
+            return true;
+        } else {
+            setInvalid(pointQtyEl, 'Add point quantity');
+            return  false;
+        }
+    } else {
+        return true
+    }
+}
+
+function pointQtyValidation() {
+    if(cardIdEl.value !== '') {
+        if(validatePointQtyEl()) {
+            if(+pointQtyEl.value < 0) {
+                if((+pointQtyEl.dataset.pointQty + +pointQtyEl.value) > 0) {
+                        return true
+                } else {
+                    setInvalid(pointQtyEl, `Your current balance is ${pointQtyEl.dataset.pointQty}`);
+                    return  false;
+                }
+            } else {
+                return true;
+            }
+        } else {
+            return  false;
+        }
+    } else {
+        return true;
+    }
+}
+
+
+
+
+
 fetch("saleInfoJson.php")
     .then((response) => {
         return response.json();
@@ -303,8 +418,9 @@ fetch("saleInfoJson.php")
 
 
         createFormBtn.addEventListener('click', event => {
-            removeCard();
+            removeCards();
             prevIsCreate = true;
+            prevIsUpdate = false;
             removeErrorMassage();
             cleanInputEl();
             activateDeactivatedForm(false);
@@ -323,12 +439,15 @@ fetch("saleInfoJson.php")
 
             if(e.target.dataset.idBtn === "item-btn") {
                 if(e.target.innerText === 'Ok') {
+                    let isValid = true;
                     let itemCost = 0;
                     let selectProduct = cards[cards.length - 1].getElementsByTagName("select")[0];
                     selectProduct.classList.remove('is-invalid');
                     let qty = cards[cards.length - 1].querySelector('input[name="qty[]"]');
                     qty.classList.remove('is-invalid');
-                    if(validateProduct(selectProduct) && validateQty(qty)) {
+                    isValid = validateProduct(selectProduct) && isValid;
+                    isValid =  validateQty(qty) && isValid;
+                    if(isValid) {
                         let price = cards[cards.length - 1].querySelector('input[name="price[]"]');
                         for(let l = 0; l < product.length; l++) {
                             if(selectProduct.value === product[l].ProductID) {
@@ -338,9 +457,20 @@ fetch("saleInfoJson.php")
                         price.value = itemCost;
                         totalAmountEl.value = + totalAmountEl.value + +itemCost;
                         e.target.remove();
+                        qty.readOnly = true;
+                        selectProduct.disabled = true;
                         addBtnToCard(cards[cards.length - 1],'Delete')
                         cardDisplay('inline');
                     }
+                } else if (e.target.innerText === 'Delete') {
+                    if(confirm("Do you want to delete this user?")) {
+                        const currentCard = e.target.parentElement.parentElement;
+                        totalAmountEl.value = +totalAmountEl.value - +currentCard.querySelector('input[name="price[]"]').value;
+                        currentCard.remove();
+                        cards.splice(cards.indexOf(currentCard), 1);
+                    }
+
+
                 }
             }
         })
@@ -349,23 +479,25 @@ fetch("saleInfoJson.php")
 
 
         updateFormBtn.addEventListener('click', event => {
+            prevIsUpdate = true;
             removeErrorMassage();
+            cardDisplay('inline');
             if(prevEl !== null) {
                 activateDeactivatedForm(false);
-                // if(permissionEl.value === "CUSTOMER") {
-                //     loyaltyEl.disabled = false;
-                // }
                 removeBtn();
                 createBtn('Update');
+                fillCustomerCard(customerEl, customer);
                 if(prevIsCreate) {
+                    removeCards();
                     prevIsCreate = false;
-                    // fillForm(prevEl,users,customers);
-                    // if(permissionEl.value === "CUSTOMER") {
-                    //     loyaltyEl.disabled = false;
-                    // }
+                    fillForm(prevEl,sale,customer, item, product);
+                    fillCustomerCard(customerEl, customer);
+                }
+                for(let f = 0 ; f < cards.length ; f++) {
+                    addBtnToCard(cards[f],'Delete');
                 }
             }  else {
-                alert("You didn't choose nothing. Choose element ti update");
+                alert("You didn't choose anything. Choose element ti update");
             }
 
 
@@ -375,19 +507,18 @@ fetch("saleInfoJson.php")
 
 
         deleteFormBtn.addEventListener('click', () => {
-            console.log(prevIsCreate);
-            if(prevIsCreate) {
+            if(prevIsCreate || prevIsUpdate) {
+                prevIsUpdate = false;
                 prevIsCreate = false;
                 window.location.reload();
             } else {
-                console.log(prevIsCreate);
                 removeErrorMassage();
                 if(prevEl !== null) {
                     removeBtn();
                     activateDeactivatedForm(true);
-                    // if (confirm("Do you want to delete this user?")) {
-                    //     window.location.href = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
-                    // }
+                    if (confirm("Do you want to delete this user?")) {
+                        window.location.href = `operatorSale.php?action=delete&sale_id=${prevEl.dataset.SaleId}`;
+                    }
                 } else  {
                     alert("You didn't choose nothing. Choose element to delete");
                 }
@@ -398,8 +529,9 @@ fetch("saleInfoJson.php")
 
         listEl.addEventListener('click', event => {
             cardDisplay('none');
-            removeCard();
+            removeCards();
             prevIsCreate = false;
+            prevIsUpdate = false;
             removeErrorMassage();
             activateDeactivatedForm(true);
             removeBtn();
@@ -416,22 +548,17 @@ fetch("saleInfoJson.php")
         });
 
         document.addEventListener('change', event => {
-            pointQtyEl.disabled = true;
-            prizeEl.disabled = true;
-            cardIdEl.value = '';
-            loyaltyEl.value = '';
-            loyaltyEl.dataset.lpId = '';
-            if(document.getElementById('btn-submit') !== null) {
-                for(let a = 0 ; a < customer.length ; a++) {
-                    if(event.target.value === customer[a].CustomerID) {
-                        if(customer[a].LoyaltyCardID !== null) {
-                            pointQtyEl.disabled = false;
-                            prizeEl.disabled = false;
-                            cardIdEl.value = customer[a].LoyaltyCardID;
-                            loyaltyEl.value = customer[a].lpName;
-                            loyaltyEl.dataset.lpId = customer[a].LoyaltyProgramID;
-                        }
-                    }
+            if (event.target === customerEl) {
+                pointQtyEl.disabled = true;
+                prizeEl.disabled = true;
+                cardIdEl.value = '';
+                loyaltyEl.value = '';
+                loyaltyEl.dataset.lpId = '';
+                pointQtyEl.value = '';
+                prizeEl.value = '';
+                if(document.getElementById('btn-submit') !== null) {
+
+                    fillCustomerCard(event.target, customer);
                 }
             }
         });
@@ -439,4 +566,57 @@ fetch("saleInfoJson.php")
 
 
 
+
+
+
+
+
+    document.addEventListener('click',event=>{
+        removeErrorMassage();
+        if(event.target.id==='btn-submit'){
+            if(event.target.innerText==='Create'||event.target.innerText==='Update'){
+                event.preventDefault();
+
+                let isValid=true;
+                isValid=validateDate()&&isValid;
+                isValid=validateCustomer()&&isValid;
+                isValid=validateMovementCard()&&isValid;
+                isValid = pointQtyValidation() && isValid;
+
+
+                if(isValid){
+                    formEl.method="post";
+                    const lpId= loyaltyEl.dataset.lpId !== undefined ? loyaltyEl.dataset.lpId : -1;
+                    if(event.target.innerText==='Update'){
+                        console.log('a');
+                        formEl.action=`operatorSale.php?sale_id=${prevEl.dataset.SaleId}&action=update&lp_id=${lpId}&
+                        prev_point_qty=${prevPointQty}`;
+                    }else{
+                        formEl.action=`operatorSale.php?action=create&lp_id=${lpId}`;
+                    }
+                    for(let j = 0 ; j < cards.length ; j++) {
+                        cards[j].getElementsByTagName("select")[0].disabled = false;
+                    }
+                    formEl.submit();
+                }
+            }
+        }
+    });
+
+
+
+
+
+    });
+
+fetch("DBErrorOperatorSale.php")
+    .then((response) => {
+        return response.json();
+
     })
+    .then((result) => {
+        if(result.isError) {
+            document.getElementById('errorMsg').style.display = 'inline';
+            document.getElementById('errorMsg').innerText = "Something went wrong";
+        }
+    });

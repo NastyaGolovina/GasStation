@@ -1,0 +1,7 @@
+
+input[readonly],
+select[readonly] {
+    background-color: #e9ecef;
+    pointer-events: none;
+    border-color: #ced4da;
+}
