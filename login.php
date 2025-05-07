@@ -31,7 +31,7 @@
                 } elseif ($row['PermissionID'] == 'EMPLOYEE_SERVICES') {
                     header('location:employeeServicesHomePage.html');
                 } elseif ($row['PermissionID'] == 'OPERATOR') {
-                    //header('location:adminHomePage.html');
+                    header('location:operatorHomePage.html');
                 } elseif ($row['PermissionID'] == 'STATION_MANAGER') {
                     //header('location:adminHomePage.html');
                 } else {
