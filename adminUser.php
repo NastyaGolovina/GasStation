@@ -28,14 +28,14 @@
                         } else {
                             session_start();
                             $_SESSION["isError"] = true;
-                            header('location:login.html');
+                            header('location:adminUsersPage.html');
                         }
                     }
                     header('location:adminUsersPage.html');
                 } else {
                     session_start();
                     $_SESSION["isError"] = true;
-                    header('location:login.html');
+                    header('location:adminUsersPage.html');
                 }
             }
         } elseif ($_GET['action'] == 'update') {
@@ -54,7 +54,7 @@
                         } else {
                             session_start();
                             $_SESSION["isError"] = true;
-                            header('location:login.html');
+                            header('location:adminUsersPage.html');
                         }
                     } else {
                         $consultation = "Select * from Customer where UserID = '".$user_id."';";
@@ -82,7 +82,7 @@
                            } else {
                                session_start();
                                $_SESSION["isError"] = true;
-                               header('location:login.html');
+                               header('location:adminUsersPage.html');
                             }
                         }
                     }
@@ -113,7 +113,7 @@
             } else {
                 session_start();
                 $_SESSION["isError"] = true;
-                header('location:login.html');
+                header('location:adminUsersPage.html');
             }
         }
     }

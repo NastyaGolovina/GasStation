@@ -64,8 +64,13 @@ INSERT INTO Product (Name, Price, Stock, Description, Type, ExpirationDate, MinS
 ('Oat Cookies', 3.00, 200, 'Pack of oatmeal cookies', 'PRODUCT_STORE', '2025-09-30', null);
 
 
-INSERT INTO Sale (Date, CustomerID, TotalPrice) VALUES
+INSERT INTO Sale (Date, CustomerID, TotalAmount) VALUES
 ('2025-05-01', 1, 10.50);
+
+
+INSERT INTO Sale (Date, CustomerID, TotalAmount) VALUES
+('2025-05-01', 1, 0);
+
 
 
 INSERT INTO Item (SaleID, ProductID, Price, Qty) VALUES
