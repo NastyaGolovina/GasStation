@@ -88,7 +88,7 @@
                             }
                         }
                     }
-                    if($cardId !== null) {
+                    if(!empty($cardId)) {
                         echo $lpId;
                         $consultation = "UPDATE Movement_Card 
                         SET Date = '".$date."', PointsQnt = ".$pointQty.", CustomerID = ".$customer.", 
@@ -108,6 +108,8 @@
                         } else {
                             setError();
                         }
+                    } else {
+                        header('location:operatorSalePage.html');
                     }
                 }
             } else {
