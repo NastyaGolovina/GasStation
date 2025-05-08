@@ -21,6 +21,7 @@ let prevEl = null;
 let prevIsCreate = false;
 let prevIsUpdate = false;
 let prevPointQty = 0;
+let prevCustomer = '';
 
 let cards = [];
 
@@ -60,12 +61,14 @@ function cleanInputEl() {
     pointQtyEl.value = '';
     prizeEl.value = '';
     prevPointQty = '';
+    prevCustomer = '';
 }
 
 function fillInputEl(saleId,date, customer , totalAmount, cardId, pointQty, prize, loyaltyProgram , lpid) {
     saleIdEl.value = saleId;
     dateEl.value = date;
     customerEl.value = customer;
+    prevCustomer = customer;
     totalAmountEl.value = totalAmount;
     cardIdEl.value = cardId;
     loyaltyEl.value = loyaltyProgram;
@@ -207,7 +210,7 @@ function createCard(id, qty , price, product, disabled, products) {
 
     const labelPriceEl = document.createElement("label");
     labelPriceEl.className = "col-12 form-label";
-    labelPriceEl.append('Price');
+    labelPriceEl.append('Amount');
     const inputPriceEl = document.createElement("input");
     inputPriceEl.type = "text";
     inputPriceEl.name ="price[]";
@@ -330,9 +333,9 @@ function validateCustomer() {
 function validateMovementCard() {
     if(cardIdEl.value !== '') {
         if(validatePointQtyEl()) {
-            if(+pointQtyEl.value > 0 && prizeEl.value === '') {
+            if(+pointQtyEl.value >= 0 && prizeEl.value === '') {
                 return true;
-            } else if(+pointQtyEl.value > 0 && prizeEl.value !== '') {
+            } else if(+pointQtyEl.value >= 0 && prizeEl.value !== '') {
                 setInvalid(prizeEl, "'If you add points to card you can't select prize");
                 return false;
             } else if(+pointQtyEl.value < 0 && prizeEl.value !== '') {
@@ -517,7 +520,8 @@ fetch("saleInfoJson.php")
                     removeBtn();
                     activateDeactivatedForm(true);
                     if (confirm("Do you want to delete this user?")) {
-                        window.location.href = `operatorSale.php?action=delete&sale_id=${prevEl.dataset.SaleId}`;
+                        window.location.href = `operatorSale.php?action=delete&sale_id=${prevEl.dataset.SaleId}&
+                        prev_point_qty=${prevPointQty}&prev_customer=${prevCustomer}`;
                     }
                 } else  {
                     alert("You didn't choose nothing. Choose element to delete");
@@ -590,7 +594,7 @@ fetch("saleInfoJson.php")
                     if(event.target.innerText==='Update'){
                         console.log('a');
                         formEl.action=`operatorSale.php?sale_id=${prevEl.dataset.SaleId}&action=update&lp_id=${lpId}&
-                        prev_point_qty=${prevPointQty}`;
+                        prev_point_qty=${prevPointQty}&prev_customer=${prevCustomer}`;
                     }else{
                         formEl.action=`operatorSale.php?action=create&lp_id=${lpId}`;
                     }
@@ -616,7 +620,7 @@ fetch("DBErrorOperatorSale.php")
     })
     .then((result) => {
         if(result.isError) {
-            document.getElementById('errorMsg').style.display = 'inline';
-            document.getElementById('errorMsg').innerText = "Something went wrong";
+            document.getElementById('errorMsg').style.display = 'block';
+            document.getElementById('errorMsgText').innerText = result.errorMsg;
         }
     });

@@ -152,8 +152,8 @@ fetch("DBErrorUserJson.php")
 })
     .then((result) => {
         if(result.isError) {
-            document.getElementById('errorMsg').style.display = 'inline';
-            document.getElementById('errorMsg').innerText = "Something went wrong";
+            document.getElementById('errorMsg').style.display = 'block';
+            document.getElementById('errorMsgText').innerText = result.errorMsg;
         }
     });
 
