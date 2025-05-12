@@ -2,13 +2,6 @@ import ply.yacc as yacc
 import ply.lex as lex
 
 
-tokens = ("STRING", "RBRACE", "LBRACE", "COMMA", "LPAREN", "RPAREN", "QUOTE", "SEMICOLON", "EQUALS", "AND",
-          "OR", "COLON", "MINUS", "ASSIGN", "DATE", "TIME","RESERVED_AVAILABILITY","RESERVED_DAYS","RESERVED_HOURS",
-          "RESERVED_SERVICE", "RESERVED_NAME", "RESERVED_DESCRIPTION", "RESERVED_STATUS", "RESERVED_EMPLOYEE",
-          "RESERVED_CLIENT", "RESERVED_UNAVAILABILITY", "RESERVED_SET", "RESERVED_IF", "RESERVED_REASON",
-          "RESERVED_MATERIAL", "RESERVED_FUNCTION", "RESERVED_DATE", "RESERVED_TO"
-          )
-
 
 reserved = {
     "availability": "RESERVED_AVAILABILITY",
@@ -31,6 +24,11 @@ reserved = {
 }
 
 
+tokens = ["STRING", "RBRACE", "LBRACE", "COMMA", "LPAREN", "RPAREN", "QUOTE", "SEMICOLON", "EQUALS", "AND",
+          "OR", "COLON", "MINUS", "ASSIGN", "DATE", "TIME"] + list(reserved.values())
+
+
+
 
 t_LPAREN = r"\("
 t_RPAREN = r"\)"
@@ -48,7 +46,7 @@ t_OR = r"\|\|"
 
 
 def t_DATE(t):
-    r'[0-2][0-9][0-9][0-9]-(0[1-9]|1[1-9])-(0[1-9]|[1-2][0-9]|3[0-1])'
+    r'[0-2][0-9][0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])'
     return t
 
 def t_TIME(t):
@@ -84,22 +82,81 @@ def find_column(input, token):
     line_start = input.rfind("\n", 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
+def p_start(p):
+    """
+    start : statement start
+    | statement
+    """
+
+def p_statement(p):
+    """
+    statement : availabilityRule
+              | unavailabilityRule
+    """
+def p_Unavailability(p):
+    """
+      unavailabilityRule : RESERVED_SET RESERVED_UNAVAILABILITY COLON \
+                         RESERVED_DATE COLON dateRule SEMICOLON \
+                         RESERVED_REASON COLON word SEMICOLON
+    """
+    print(' unavailability rule work')
+
+def p_date(p):
+    """
+     dateRule : DATE RESERVED_TO DATE
+             | DATE
+     """
+def p_Availability(p):
+    """
+      availabilityRule : RESERVED_SET RESERVED_AVAILABILITY COLON \
+                         RESERVED_DAYS COLON daysRule SEMICOLON \
+                         RESERVED_HOURS COLON TIME MINUS TIME SEMICOLON
+    """
+    print('availability rule work')
+
+def p_days(p):
+    """
+    daysRule : STRING RESERVED_TO STRING
+            | STRING
+    """
+
+def p_str(p):
+    """
+    word : STRING word
+            | STRING
+    """
+#
+# lexer = lex.lex()
+#
+# test_string = """
+# def morning_shift() {
+#     set availability:
+#         days: Monday to Friday;
+#         hours: 08:00-12:00;
+# }
+#
+# """
+#
+#
+# lexer.input(test_string)
+#
+# while True:
+#     tok = lexer.token()
+#     if not tok:
+#         break  # No more input
+#     print(tok.type, tok.value, tok.lineno, tok.lexpos)
 lexer = lex.lex()
+parser = yacc.yacc()
 
-test_string = """
-def morning_shift() {
-    set availability:
-        days: Monday to Friday;
-        hours: 08:00-12:00;
-}
+test_string = """set availability:
+                days: Monday to Friday;
+                hours: 08:00-12:00;
+                
+                
+                
+                set unavailability:
+                date: 2025-04-10 to 2025-04-12;
+                reason: vacation;"""
 
-"""
 
-
-lexer.input(test_string)
-
-while True:
-    tok = lexer.token()
-    if not tok:
-        break  # No more input
-    print(tok.type, tok.value, tok.lineno, tok.lexpos)
+parser.parse(test_string)
