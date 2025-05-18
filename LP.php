@@ -65,15 +65,7 @@ if ($action === 'delete') {
         exit;
     }
 
-    // Optional: prevent delete if assigned to any customer
-    $check = "SELECT * FROM Customer WHERE LoyaltyProgramID = '$lp_id'";
-    $result = $connection->query($check);
-    if ($result && $result->num_rows > 0) {
-        echo json_encode(['error' => 'Cannot delete: Loyalty Program is assigned to customers.']);
-        exit;
-    }
-
-    $query = "DELETE FROM LoyaltyProgram WHERE LoyaltyProgramID = '$lp_id'";
+$query = "DELETE FROM LoyaltyProgram WHERE LoyaltyProgramID = '$lp_id'";
     if ($connection->query($query)) {
         echo json_encode(['success' => true]);
     } else {
