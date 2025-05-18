@@ -49,3 +49,6 @@ VALUES (
         'Fuel'
        );
 
+ALTER TABLE service
+    ADD COLUMN Duration VARCHAR(10),
+ADD COLUMN Priority ENUM('Low', 'Medium', 'High');
