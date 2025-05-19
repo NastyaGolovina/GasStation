@@ -91,7 +91,7 @@ function removeActiveClass() {
     }
 }
 
-function createBtn(btnName) {
+function createSubmitBtn(btnName) {
     const btnEl = document.createElement("button");
     btnEl.className = "w-100 btn btn-primary btn-lg";
     btnEl.type = "button";
@@ -157,17 +157,17 @@ fetch("usersInfoJson.php")
     });
 
 //create
-createFormBtn.addEventListener('click', event => {
+createBtn.addEventListener('click', event => {
     prevIsCreate = true;
     removeErrorMessage();
     cleanInputEl();
     activateDeactivatedForm(false);
     removeBtn();
-    createBtn('Create');
+    createSubmitBtn('Create');
 });
 
 //update
-updateFormBtn.addEventListener('click', event => {
+updateBtn.addEventListener('click', event => {
     removeErrorMessage(); // Clear any visible error
 
     if (prevEl !== null) {
@@ -178,7 +178,7 @@ updateFormBtn.addEventListener('click', event => {
             expirationDateEL.disabled = false;
         }
         removeBtn();
-        createBtn('Update');
+        createSubmitBtn('Update');
 
         if (prevIsCreate) {
             prevIsCreate = false;
@@ -197,19 +197,19 @@ updateFormBtn.addEventListener('click', event => {
 });
 
 //delete
-deleteFormBtn.addEventListener('click', () => {
+deleteBtn.addEventListener('click', () => {
     console.log(prevIsCreate);
     if(prevIsCreate) {
      prevIsCreate = false;
        window.location.reload();
     } else {
         console.log(prevIsCreate);
-        removeErrorMassage();
+        removeErrorMessage();
        if(prevEl !== null) {
           removeBtn();
           activateDeactivatedForm(true);
             if (confirm("Do you want to delete this product?")) {
-                window.location.href = `operatorProduct.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
+                window.location.href = `operatorProduct.php?product_id=${prevEl.dataset.dataProductInforId}&action=delete`;
            }
         } else  {
             alert("You didn't choose nothing. Choose element to delete");
@@ -274,8 +274,8 @@ document.addEventListener('change', event => {
                 }
 
                 // Description validation
-                if (descEl.value.length > 350) {
-                    setInvalid(descEl, 'Description must be 350 characters or less.');
+                if (descriptionEL.value.length > 350) {
+                    setInvalid(descriptionEL, 'Description must be 350 characters or less.');
                     isValid = false;
                 }
 
@@ -315,7 +315,7 @@ document.addEventListener('change', event => {
                     formData.append("productname", productNameEl.value);
                     formData.append("price", priceEl.value);
                     formData.append("stock", stockEl.value);
-                    formData.append("description", descEl.value);
+                    formData.append("description", descriptionEl.value);
                     formData.append("type", typeEl.value);
                     formData.append("expirationDate", expirationDateEl.value);
                     formData.append("minStock", minStockEl.value);
