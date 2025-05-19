@@ -243,17 +243,29 @@ listEl.addEventListener('click', event => {
 
 //Type dropdown
 document.addEventListener('change', event => {
-    if(document.getElementById('btn-submit') !== null) {
-        if(event.target.id === 'type') {
-            if(event.target.value === "Product" ) {
+    if (document.getElementById('btn-submit') !== null) {
+        if (event.target.id === 'type') {
+            const selectedType = event.target.value;
+
+            if (selectedType === "Product") {
                 expirationDateEL.disabled = false;
-            } else {
-                expirationDateEL.value = '';
+                minStockEL.disabled = true;
+                minStockEL.value = '';
+            } else if (selectedType === "Fuel") {
+                minStockEL.disabled = false;
                 expirationDateEL.disabled = true;
+                expirationDateEL.value = '';
+            } else {
+                // Reset both if something else is selected
+                expirationDateEL.disabled = true;
+                expirationDateEL.value = '';
+                minStockEL.disabled = true;
+                minStockEL.value = '';
             }
         }
     }
 });
+
 
 //validation before submit
     document.addEventListener('click', event => {
