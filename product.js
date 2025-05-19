@@ -4,6 +4,7 @@ const priceEL = document.getElementById('price');
 const stockEL = document.getElementById('stock');
 const descriptionEL = document.getElementById('desc');
 const typeEL = document.getElementById('type');
+typeEL.addEventListener('change', updateConditionalFields);
 const expirationDateEL = document.getElementById('expiration-date');
 const minStockEL = document.getElementById('min-stock');
 const listEl = document.getElementById('productlist');
@@ -23,8 +24,8 @@ function activateDeactivatedForm(isDisabled) {
     stockEL.disabled = isDisabled;
     descriptionEL.disabled = isDisabled;
     typeEL.disabled = isDisabled;
-    //expirationDateEL.disabled = true;
-    //minStockEL.disabled = true;
+    expirationDateEL.disabled = isDisabled;
+    minStockEL.disabled = isDisabled;
 }
 
 function cleanInputEl() {
@@ -33,20 +34,39 @@ function cleanInputEl() {
     stockEL.value = "";
     descriptionEL.value = "";
     typeEL.value = "";
-    //expirationDateEL.value = '';
-    //minStockEL.value = '';
+    expirationDateEL.value = '';
+    minStockEL.value = '';
 }
 
-function fillInputEl(productName, price, stock, description, type) {
+function fillInputEl(productName, price, stock, description, type, expirationDate, minStock) {
     productNameEl.value = productName;
     priceEL.value = price;
     stockEL.value = stock;
     descriptionEL.value = description;
-    typeEL.value = type;
+
+    // ✅ Normalize and match type case-insensitively
+    if (type && typeof type === 'string') {
+        const normalized = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+
+        // Find matching option (case-insensitive)
+        const match = Array.from(typeEL.options).find(
+            opt => opt.value.toLowerCase() === normalized.toLowerCase()
+        );
+
+        typeEL.value = match ? match.value : '';
+    } else {
+        typeEL.value = '';
+    }
+
+    expirationDateEL.value = expirationDate || '';
+    minStockEL.value = minStock || '';
+
+    updateConditionalFields();
 }
 
 
-function addElInList(id, name, price, stock, description, type, i) {
+
+function addElInList(id, name, price, stock, description, type,expirationDate,minStock, i) {
     const aEl = document.createElement("a");
     const divHeader = document.createElement("div");
     const strongEl = document.createElement("strong");
@@ -58,6 +78,8 @@ function addElInList(id, name, price, stock, description, type, i) {
     aEl.dataset.dataProductDescription = description;
     aEl.dataset.dataProductType = type;
     aEl.dataset.dataProductInforId = id;
+    aEl.dataset.dataProductExpirationDate = expirationDate;
+    aEl.dataset.dataProductMinStock = minStock;
 
     aEl.className = "list-group-item list-group-item-action py-3 lh-sm";
     divHeader.className = "d-flex w-100 align-items-center justify-content-between";
@@ -141,18 +163,24 @@ fetch("productInfoJson.php")
                 productInfor[i].Stock,
                 productInfor[i].Description,
                 productInfor[i].Type,
+                productInfor[i].ExpirationDate,
+                productInfor[i].MinStock,
                 i
             );
         }
 
         if (productInfor.length > 0) {
-            fillInputEl(
-                productInfor[0].ProductName,
-                productInfor[0].Price,
-                productInfor[0].Stock,
-                productInfor[0].Description,
-                productInfor[0].Type
-            );
+                fillInputEl(
+                    productInfor[0].ProductName,
+                    productInfor[0].Price,
+                    productInfor[0].Stock,
+                    productInfor[0].Description,
+                    productInfor[0].Type,
+                    productInfor[0].ExpirationDate,
+                    productInfor[0].MinStock
+        );
+            updateConditionalFields();
+
         }
     });
 
@@ -162,6 +190,7 @@ createBtn.addEventListener('click', event => {
     removeErrorMessage();
     cleanInputEl();
     activateDeactivatedForm(false);
+    updateConditionalFields();
     removeBtn();
     createSubmitBtn('Create');
 });
@@ -188,6 +217,8 @@ updateBtn.addEventListener('click', event => {
                 prevEl.dataset.dataProductStock,
                 prevEl.dataset.dataProductDescription,
                 prevEl.dataset.dataProductType,
+                prevEl.dataset.dataProductExpirationDate,
+                prevEl.dataset.dataProductMinStock
             );
         }
 
@@ -247,40 +278,55 @@ listEl.addEventListener('click', event => {
     prevEl = currentEl;
     currentEl.classList.add('active');
 
-    fillInputEl(
+    fillInputEl (
         currentEl.dataset.dataProductName,
         currentEl.dataset.dataProductPrice,
         currentEl.dataset.dataProductStock,
         currentEl.dataset.dataProductDescription,
-        currentEl.dataset.dataProductType
+        currentEl.dataset.dataProductType,
+        currentEl.dataset.dataProductExpirationDate,
+        currentEl.dataset.dataProductMinStock
     );
+
 });
 
 //Type dropdown
-document.addEventListener('change', event => {
-    if (document.getElementById('btn-submit') !== null) {
-        if (event.target.id === 'type') {
-            const selectedType = event.target.value;
+function updateConditionalFields() {
+    const selectedType = typeEL.value;
 
-            if (selectedType === "Product") {
-                expirationDateEL.disabled = false;
-                minStockEL.disabled = true;
-                minStockEL.value = '';
-            } else if (selectedType === "Fuel") {
-                minStockEL.disabled = false;
-                expirationDateEL.disabled = true;
-                expirationDateEL.value = '';
-            } else {
-                // Reset both if something else is selected
-                expirationDateEL.disabled = true;
-                expirationDateEL.value = '';
-                minStockEL.disabled = true;
-                minStockEL.value = '';
-            }
-        }
+    if (selectedType === "Product") {
+        expirationDateEL.disabled = false;
+        minStockEL.disabled = true;
+    } else if (selectedType === "Fuel") {
+        minStockEL.disabled = false;
+        expirationDateEL.disabled = true;
+    } else {
+        expirationDateEL.disabled = true;
+        minStockEL.disabled = true;
     }
-});
+}
 
+//document.addEventListener('change', event => {
+//         if (event.target.id === 'type') {
+//             const selectedType = event.target.value;
+//
+//             if (selectedType === "Product") {
+//                 expirationDateEL.disabled = false;
+//                 minStockEL.disabled = true;
+//                 minStockEL.value = '';
+//             } else if (selectedType === "Fuel") {
+//                 minStockEL.disabled = false;
+//                 expirationDateEL.disabled = true;
+//                 expirationDateEL.value = '';
+//             } else {
+//                 // Reset both if something else is selected
+//                 expirationDateEL.disabled = true;
+//                 expirationDateEL.value = '';
+//                 minStockEL.disabled = true;
+//                 minStockEL.value = '';
+//             }
+//             }
+// });
 
 //validation before submit
     document.addEventListener('click', event => {

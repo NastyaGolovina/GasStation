@@ -5,8 +5,12 @@ $product = [];
 $consultation = "SELECT 
                     ProductID AS productInforID,
                     Name AS ProductName,
+                    Price,
+                    Stock,
+                    Description,
                     Type,
-                    Description
+                    ExpirationDate,
+                    MinStock
                  FROM Product";
 
 if (!empty($connection)) {

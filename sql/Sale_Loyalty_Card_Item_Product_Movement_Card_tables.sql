@@ -55,13 +55,16 @@ CREATE TABLE Movement_Card (
 
 
 
-INSERT INTO Loyalty_Card (Points, CustomerID) VALUES (1000, 1);
+INSERT INTO Loyalty_Card (Points, CustomerID) VALUES
+(1000, 1);
+(1500, 2);
+
 
 
 INSERT INTO Product (Name, Price, Stock, Description, Type, ExpirationDate, MinStock) VALUES
-('Chocolate Bar', 2.50, 100, 'Milk chocolate bar', 'PRODUCT_STORE', '2025-12-01', null),
-('Ground Coffee', 5.00, 50, '250g pack of ground coffee', 'PRODUCT_STORE', '2026-01-15', null),
-('Oat Cookies', 3.00, 200, 'Pack of oatmeal cookies', 'PRODUCT_STORE', '2025-09-30', null);
+('Chocolate Bar', 2.50, 100, 'Milk chocolate bar', 'Product', '2025-12-01', null),
+('Ground Coffee', 5.00, 50, '250g pack of ground coffee', 'Product', '2026-01-15', null),
+('Oat Cookies', 3.00, 200, 'Pack of oatmeal cookies', 'Product', '2025-09-30', null);
 
 
 INSERT INTO Sale (Date, CustomerID, TotalAmount) VALUES
