@@ -127,7 +127,7 @@ fetch("DBErrorProductJson.php")
         }
     });
 
-fetch("usersInfoJson.php")
+fetch("productInfoJson.php")
     .then((response) => response.json())
     .then((result) => {
         let productInfor = result.productInforTable;
@@ -209,7 +209,22 @@ deleteBtn.addEventListener('click', () => {
           removeBtn();
           activateDeactivatedForm(true);
             if (confirm("Do you want to delete this product?")) {
-                window.location.href = `operatorProduct.php?product_id=${prevEl.dataset.dataProductInforId}&action=delete`;
+                fetch(`operatorProduct.php?product_id=${prevEl.dataset.dataProductInforId}&action=delete`, {
+                    method: 'POST'
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Product deleted successfully!");
+                            window.location.reload();
+                        } else {
+                            alert(data.error || "Failed to delete product.");
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Server error occurred.");
+                    });
            }
         } else  {
             alert("You didn't choose nothing. Choose element to delete");
@@ -292,32 +307,32 @@ document.addEventListener('change', event => {
                 }
 
                 // Price validation
-                if (priceEl.value === '' || priceEl.value < 0) {
+                if (priceEL.value === '' || priceEL.value < 0) {
                     setInvalid(priceEl, 'Price must be a positive number.');
                     isValid = false;
                 }
 
                 // Stock validation
-                if (stockEl.value === '' || stockEl.value < 0) {
-                    setInvalid(stockEl, 'Stock must be a positive number.');
+                if (stockEL.value === '' || stockEL.value < 0) {
+                    setInvalid(stockEL, 'Stock must be a positive number.');
                     isValid = false;
                 }
 
                 // Type validation
-                if (typeEl.value !== 'Fuel' && typeEl.value !== 'Product') {
+                if (typeEL.value !== 'Fuel' && typeEL.value !== 'Product') {
                     setInvalid(typeEl, 'Choose a valid type.');
                     isValid = false;
                 }
 
                 // Conditional validation
-                if (typeEl.value === 'Fuel') {
-                    if (minStockEl.value === '' || minStockEl.value < 0) {
+                if (typeEL.value === 'Fuel') {
+                    if (minStockEL.value === '' || minStockEL.value < 0) {
                         setInvalid(minStockEl, 'Set a valid minimum stock value.');
                         isValid = false;
                     }
-                } else if (typeEl.value === 'Product') {
-                    if (!expirationDateEl.value) {
-                        setInvalid(expirationDateEl, 'Set a valid expiration date.');
+                } else if (typeEL.value === 'Product') {
+                    if (!expirationDateEL.value) {
+                        setInvalid(expirationDateEL, 'Set a valid expiration date.');
                         isValid = false;
                     }
                 }
@@ -325,12 +340,12 @@ document.addEventListener('change', event => {
                 if (isValid) {
                     const formData = new FormData();
                     formData.append("productname", productNameEl.value);
-                    formData.append("price", priceEl.value);
-                    formData.append("stock", stockEl.value);
-                    formData.append("description", descriptionEl.value);
-                    formData.append("type", typeEl.value);
-                    formData.append("expirationDate", expirationDateEl.value);
-                    formData.append("minStock", minStockEl.value);
+                    formData.append("price", priceEL.value);
+                    formData.append("stock", stockEL.value);
+                    formData.append("description", descriptionEL.value);
+                    formData.append("type", typeEL.value);
+                    formData.append("expirationDate", expirationDateEL.value);
+                    formData.append("minStock", minStockEL.value);
 
                     let url = `operatorProduct.php?action=${actionType}`;
                     if (actionType === 'update') {
