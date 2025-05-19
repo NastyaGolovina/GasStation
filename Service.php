@@ -28,6 +28,8 @@ if ($action === 'create' || $action === 'update') {
     $name = isset($_POST["name"]) ? safeInput($connection, $_POST["name"]) : '';
     $description = isset($_POST["description"]) ? safeInput($connection, $_POST["description"]) : '';
     $status = isset($_POST["status"]) ? (($_POST["status"] === "1") ? 1 : 0) : 0;
+    $duration = isset($_POST["duration"]) ? safeInput($connection, $_POST["duration"]) : '';
+    $priority = isset($_POST["priority"]) ? safeInput($connection, $_POST["priority"]) : '';
 
     if ($name === '') {
         http_response_code(400);
@@ -41,8 +43,21 @@ if ($action === 'create' || $action === 'update') {
         exit;
     }
 
+    if ($duration === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Duration is required']);
+        exit;
+    }
+
+    if ($priority === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Priority is required']);
+        exit;
+    }
+
     if ($action === 'create') {
-        $query = "INSERT INTO Service (Name, Description, Status) VALUES ('$name', '$description', '$status')";
+        $query = "INSERT INTO Service (Name, Description, Status, Duration, Priority)
+                  VALUES ('$name', '$description', '$status', '$duration', '$priority')";
         if ($connection->query($query)) {
             echo json_encode(['success' => true, 'id' => $connection->insert_id]);
         } else {
@@ -59,7 +74,10 @@ if ($action === 'create' || $action === 'update') {
             exit;
         }
 
-        $query = "UPDATE Service SET Name = '$name', Description = '$description', Status = '$status' WHERE ServiceID = '$service_id'";
+        $query = "UPDATE Service
+                  SET Name = '$name', Description = '$description', Status = '$status',
+                      Duration = '$duration', Priority = '$priority'
+                  WHERE ServiceID = '$service_id'";
         if ($connection->query($query)) {
             echo json_encode(['success' => true]);
         } else {
