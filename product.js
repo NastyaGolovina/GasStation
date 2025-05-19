@@ -179,6 +179,7 @@ fetch("productInfoJson.php")
                     productInfor[0].ExpirationDate,
                     productInfor[0].MinStock
         );
+            activateDeactivatedForm(true);
             updateConditionalFields();
 
         }
