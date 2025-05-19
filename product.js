@@ -8,13 +8,14 @@ const expirationDateEL = document.getElementById('expiration-date');
 const minStockEL = document.getElementById('min-stock');
 const listEl = document.getElementById('productlist');
 const formEl = document.getElementsByTagName("form")[0];
-let prevEl = null;
-let prevIsCreate = false;
 
 // Buttons for CRUD actions
 const createBtn = document.getElementById('create');
 const updateBtn = document.getElementById('update');
 const deleteBtn = document.getElementById('delete');
+
+let prevEl = null;
+let prevIsCreate = false;
 
 function activateDeactivatedForm(isDisabled) {
     productNameEl.disabled = isDisabled;
@@ -36,16 +37,16 @@ function cleanInputEl() {
     //minStockEL.value = '';
 }
 
-function fillInputEl(productName, price, stock, descriprion, type) {
+function fillInputEl(productName, price, stock, description, type) {
     productNameEl.value = productName;
     priceEL.value = price;
     stockEL.value = stock;
-    descriptionEL.value = descriprion;
+    descriptionEL.value = description;
     typeEL.value = type;
-
 }
 
-function addElInList(id, name, description,type, i) {
+
+function addElInList(id, name, price, stock, description, type, i) {
     const aEl = document.createElement("a");
     const divHeader = document.createElement("div");
     const strongEl = document.createElement("strong");
@@ -56,27 +57,25 @@ function addElInList(id, name, description,type, i) {
     aEl.dataset.dataProductStock = stock;
     aEl.dataset.dataProductDescription = description;
     aEl.dataset.dataProductType = type;
+    aEl.dataset.dataProductInforId = id;
 
-
-    aEl.dataset.dataProductId = id;
     aEl.className = "list-group-item list-group-item-action py-3 lh-sm";
     divHeader.className = "d-flex w-100 align-items-center justify-content-between";
     strongEl.className = "mb";
-    divText.className = 'col-10 mb-1 small'
+    divText.className = "col-10 mb-1 small";
 
     strongEl.innerText = name;
     divHeader.appendChild(strongEl);
-    divText.innerText = login;
+    divText.innerText = description; // fixed from undefined 'login' to 'description'
     aEl.appendChild(divHeader);
     aEl.appendChild(divText);
     listEl.appendChild(aEl);
 
     // If this is the first product, mark it as active
-    if(i === 0) {
+    if (i === 0) {
         prevEl = aEl;
         prevEl.classList.add('active');
     }
-
 }
 
 function removeBtn() {
@@ -138,6 +137,8 @@ fetch("usersInfoJson.php")
             addElInList(
                 productInfor[i].productInforID,
                 productInfor[i].ProductName,
+                productInfor[i].Price,
+                productInfor[i].Stock,
                 productInfor[i].Description,
                 productInfor[i].Type,
                 i
@@ -147,11 +148,13 @@ fetch("usersInfoJson.php")
         if (productInfor.length > 0) {
             fillInputEl(
                 productInfor[0].ProductName,
+                productInfor[0].Price,
+                productInfor[0].Stock,
                 productInfor[0].Description,
                 productInfor[0].Type
             );
         }
-    })
+    });
 
 //create
 createFormBtn.addEventListener('click', event => {
@@ -194,25 +197,25 @@ updateFormBtn.addEventListener('click', event => {
 });
 
 //delete
-//deleteFormBtn.addEventListener('click', () => {
-   // console.log(prevIsCreate);
-   // if(prevIsCreate) {
-     //   prevIsCreate = false;
-     //   window.location.reload();
-   // } else {
-      //  console.log(prevIsCreate);
-      ///  removeErrorMassage();
-      //  if(prevEl !== null) {
-      ////      removeBtn();
-      //      activateDeactivatedForm(true);
-       //     if (confirm("Do you want to delete this product?")) {
-        //        window.location.href = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
-        //    }
-      //  } else  {
-      //      alert("You didn't choose nothing. Choose element to delete");
-       // }
-  //  }//
-//});
+deleteFormBtn.addEventListener('click', () => {
+    console.log(prevIsCreate);
+    if(prevIsCreate) {
+     prevIsCreate = false;
+       window.location.reload();
+    } else {
+        console.log(prevIsCreate);
+        removeErrorMassage();
+       if(prevEl !== null) {
+          removeBtn();
+          activateDeactivatedForm(true);
+            if (confirm("Do you want to delete this product?")) {
+                window.location.href = `operatorProduct.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
+           }
+        } else  {
+            alert("You didn't choose nothing. Choose element to delete");
+        }
+    }
+});
 
 // List item click
 listEl.addEventListener('click', event => {
@@ -253,83 +256,96 @@ document.addEventListener('change', event => {
 });
 
 //validation before submit
-document.addEventListener('click', event => {
+    document.addEventListener('click', event => {
+        removeErrorMessage();
 
-    removeErrorMessage(); // Clear existing error alerts
-    if (event.target.id === 'btn-submit') {
-        if (event.target.innerText === 'Create' || event.target.innerText === 'Update') {
-            event.preventDefault();
+        if (event.target.id === 'btn-submit') {
+            const actionType = event.target.innerText.toLowerCase(); // 'create' or 'update'
 
-            if (productNameEl.value !== '' && productNameEl.value.length <= 100) {
-                if (descEl.value.length <= 350) {
-                    if (priceEl.value !== '' && priceEl.value >= 0) {
-                        if (stockEl.value !== '' && stockEl.value >= 0) {
-                            if (typeEl.value === "Fuel" || typeEl.value === "Product") {
+            if (actionType === 'create' || actionType === 'update') {
+                event.preventDefault();
 
-                                if ((typeEl.value === "Fuel" && minStockEl.value !== '' && minStockEl.value >= 0) ||
-                                    (typeEl.value === "Product" && expirationDateEl.value !== '')) {
+                let isValid = true;
 
-                                        const formData = new FormData();
-                                        formData.append("productname", productNameEl.value);
-                                        formData.append("price", priceEL.value);
-                                        formData.append("stock", stockEL.value);
-                                        formData.append("description", descriptionEL.value);
-                                        formData.append("type", typeEL.value);
-                                        formData.append("expirationDate", expirationDateEL.value);
-                                        formData.append("minStock", minStockEL.value);
-
-                                        let actionType = event.target.innerText.toLowerCase(); // 'create' or 'update'
-                                        let url = `Product.php?action=${actionType}`;
-
-                                        if (actionType === 'update') {
-                                            url += `&product_id=${prevEl.dataset.dataProductInforId}`;
-                                        }
-
-                                        fetch(url, {
-                                            method: 'POST',
-                                            body: formData
-                                        })
-                                            .then(res => res.json())
-                                            .then(data => {
-                                                if (data.success) {
-                                                    alert("Product saved successfully!");
-                                                    cleanInputEl();
-                                                    activateDeactivatedForm(true);
-                                                    removeBtn();
-                                                    // optionally re-fetch or update UI
-                                                } else {
-                                                    alert(data.error || "Operation failed.");
-                                                }
-                                            })
-                                            .catch(err => {
-                                                console.error(err);
-                                                alert("Server error occurred.");
-                                            });
-
-
-                                } else {
-                                    if (typeEl.value === "Fuel") {
-                                        setInvalid(minStockEl, "Set a valid minimum stock value");
-                                    } else {
-                                        setInvalid(expirationDateEl, "Set a valid expiration date");
-                                    }
-                                }
-
-                            } else {
-                                setInvalid(typeEl, "Choose a valid type");
-                            }
-                        } else {
-                            setInvalid(stockEl, "Stock must be a positive number");
-                        }
-                    } else {
-                        setInvalid(priceEl, "Price must be a positive number");
-                    }
-                } else {
-                    setInvalid(descEl, "Description must be 350 characters or less");
+                // Product name validation
+                if (!productNameEl.value || productNameEl.value.length > 100) {
+                    setInvalid(productNameEl, 'Name must be between 1 and 100 characters.');
+                    isValid = false;
                 }
-            } else {
-                setInvalid(productNameEl, "Name must be 1 to 100 characters");
+
+                // Description validation
+                if (descEl.value.length > 350) {
+                    setInvalid(descEl, 'Description must be 350 characters or less.');
+                    isValid = false;
+                }
+
+                // Price validation
+                if (priceEl.value === '' || priceEl.value < 0) {
+                    setInvalid(priceEl, 'Price must be a positive number.');
+                    isValid = false;
+                }
+
+                // Stock validation
+                if (stockEl.value === '' || stockEl.value < 0) {
+                    setInvalid(stockEl, 'Stock must be a positive number.');
+                    isValid = false;
+                }
+
+                // Type validation
+                if (typeEl.value !== 'Fuel' && typeEl.value !== 'Product') {
+                    setInvalid(typeEl, 'Choose a valid type.');
+                    isValid = false;
+                }
+
+                // Conditional validation
+                if (typeEl.value === 'Fuel') {
+                    if (minStockEl.value === '' || minStockEl.value < 0) {
+                        setInvalid(minStockEl, 'Set a valid minimum stock value.');
+                        isValid = false;
+                    }
+                } else if (typeEl.value === 'Product') {
+                    if (!expirationDateEl.value) {
+                        setInvalid(expirationDateEl, 'Set a valid expiration date.');
+                        isValid = false;
+                    }
+                }
+
+                if (isValid) {
+                    const formData = new FormData();
+                    formData.append("productname", productNameEl.value);
+                    formData.append("price", priceEl.value);
+                    formData.append("stock", stockEl.value);
+                    formData.append("description", descEl.value);
+                    formData.append("type", typeEl.value);
+                    formData.append("expirationDate", expirationDateEl.value);
+                    formData.append("minStock", minStockEl.value);
+
+                    let url = `operatorProduct.php?action=${actionType}`;
+                    if (actionType === 'update') {
+                        url += `&product_id=${prevEl.dataset.dataProductInforId}`;
+                    }
+
+                    fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Product saved successfully!");
+                                cleanInputEl();
+                                activateDeactivatedForm(true);
+                                removeBtn();
+                            } else {
+                                alert(data.error || "Operation failed.");
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert("Server error occurred.");
+                        });
+                }
             }
         }
-    }
-});
+    });
+
