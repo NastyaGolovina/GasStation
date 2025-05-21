@@ -4,17 +4,19 @@ const priceEL = document.getElementById('price');
 const stockEL = document.getElementById('stock');
 const descriptionEL = document.getElementById('desc');
 const typeEL = document.getElementById('type');
+typeEL.addEventListener('change', updateConditionalFields);
 const expirationDateEL = document.getElementById('expiration-date');
 const minStockEL = document.getElementById('min-stock');
 const listEl = document.getElementById('productlist');
 const formEl = document.getElementsByTagName("form")[0];
-let prevEl = null;
-let prevIsCreate = false;
 
 // Buttons for CRUD actions
 const createBtn = document.getElementById('create');
 const updateBtn = document.getElementById('update');
 const deleteBtn = document.getElementById('delete');
+
+let prevEl = null;
+let prevIsCreate = false;
 
 function activateDeactivatedForm(isDisabled) {
     productNameEl.disabled = isDisabled;
@@ -22,8 +24,8 @@ function activateDeactivatedForm(isDisabled) {
     stockEL.disabled = isDisabled;
     descriptionEL.disabled = isDisabled;
     typeEL.disabled = isDisabled;
-    //expirationDateEL.disabled = true;
-    //minStockEL.disabled = true;
+    expirationDateEL.disabled = isDisabled;
+    minStockEL.disabled = isDisabled;
 }
 
 function cleanInputEl() {
@@ -32,20 +34,39 @@ function cleanInputEl() {
     stockEL.value = "";
     descriptionEL.value = "";
     typeEL.value = "";
-    //expirationDateEL.value = '';
-    //minStockEL.value = '';
+    expirationDateEL.value = '';
+    minStockEL.value = '';
 }
 
-function fillInputEl(productName, price, stock, descriprion, type) {
+function fillInputEl(productName, price, stock, description, type, expirationDate, minStock) {
     productNameEl.value = productName;
     priceEL.value = price;
     stockEL.value = stock;
-    descriptionEL.value = descriprion;
-    typeEL.value = type;
+    descriptionEL.value = description;
 
+    // ✅ Normalize and match type case-insensitively
+    if (type && typeof type === 'string') {
+        const normalized = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+
+        // Find matching option (case-insensitive)
+        const match = Array.from(typeEL.options).find(
+            opt => opt.value.toLowerCase() === normalized.toLowerCase()
+        );
+
+        typeEL.value = match ? match.value : '';
+    } else {
+        typeEL.value = '';
+    }
+
+    expirationDateEL.value = expirationDate || '';
+    minStockEL.value = minStock || '';
+
+    updateConditionalFields();
 }
 
-function addElInList(id, name, description,type, i) {
+
+
+function addElInList(id, name, price, stock, description, type,expirationDate,minStock, i) {
     const aEl = document.createElement("a");
     const divHeader = document.createElement("div");
     const strongEl = document.createElement("strong");
@@ -56,27 +77,27 @@ function addElInList(id, name, description,type, i) {
     aEl.dataset.dataProductStock = stock;
     aEl.dataset.dataProductDescription = description;
     aEl.dataset.dataProductType = type;
+    aEl.dataset.dataProductInforId = id;
+    aEl.dataset.dataProductExpirationDate = expirationDate;
+    aEl.dataset.dataProductMinStock = minStock;
 
-
-    aEl.dataset.dataProductId = id;
     aEl.className = "list-group-item list-group-item-action py-3 lh-sm";
     divHeader.className = "d-flex w-100 align-items-center justify-content-between";
     strongEl.className = "mb";
-    divText.className = 'col-10 mb-1 small'
+    divText.className = "col-10 mb-1 small";
 
     strongEl.innerText = name;
     divHeader.appendChild(strongEl);
-    divText.innerText = login;
+    divText.innerText = description; // fixed from undefined 'login' to 'description'
     aEl.appendChild(divHeader);
     aEl.appendChild(divText);
     listEl.appendChild(aEl);
 
     // If this is the first product, mark it as active
-    if(i === 0) {
+    if (i === 0) {
         prevEl = aEl;
         prevEl.classList.add('active');
     }
-
 }
 
 function removeBtn() {
@@ -92,7 +113,7 @@ function removeActiveClass() {
     }
 }
 
-function createBtn(btnName) {
+function createSubmitBtn(btnName) {
     const btnEl = document.createElement("button");
     btnEl.className = "w-100 btn btn-primary btn-lg";
     btnEl.type = "button";
@@ -128,7 +149,7 @@ fetch("DBErrorProductJson.php")
         }
     });
 
-fetch("usersInfoJson.php")
+fetch("productInfoJson.php")
     .then((response) => response.json())
     .then((result) => {
         let productInfor = result.productInforTable;
@@ -138,33 +159,45 @@ fetch("usersInfoJson.php")
             addElInList(
                 productInfor[i].productInforID,
                 productInfor[i].ProductName,
+                productInfor[i].Price,
+                productInfor[i].Stock,
                 productInfor[i].Description,
                 productInfor[i].Type,
+                productInfor[i].ExpirationDate,
+                productInfor[i].MinStock,
                 i
             );
         }
 
         if (productInfor.length > 0) {
-            fillInputEl(
-                productInfor[0].ProductName,
-                productInfor[0].Description,
-                productInfor[0].Type
-            );
+                fillInputEl(
+                    productInfor[0].ProductName,
+                    productInfor[0].Price,
+                    productInfor[0].Stock,
+                    productInfor[0].Description,
+                    productInfor[0].Type,
+                    productInfor[0].ExpirationDate,
+                    productInfor[0].MinStock
+        );
+            activateDeactivatedForm(true);
+            updateConditionalFields();
+
         }
-    })
+    });
 
 //create
-createFormBtn.addEventListener('click', event => {
+createBtn.addEventListener('click', event => {
     prevIsCreate = true;
     removeErrorMessage();
     cleanInputEl();
     activateDeactivatedForm(false);
+    updateConditionalFields();
     removeBtn();
-    createBtn('Create');
+    createSubmitBtn('Create');
 });
 
 //update
-updateFormBtn.addEventListener('click', event => {
+updateBtn.addEventListener('click', event => {
     removeErrorMessage(); // Clear any visible error
 
     if (prevEl !== null) {
@@ -175,7 +208,7 @@ updateFormBtn.addEventListener('click', event => {
             expirationDateEL.disabled = false;
         }
         removeBtn();
-        createBtn('Update');
+        createSubmitBtn('Update');
 
         if (prevIsCreate) {
             prevIsCreate = false;
@@ -185,6 +218,8 @@ updateFormBtn.addEventListener('click', event => {
                 prevEl.dataset.dataProductStock,
                 prevEl.dataset.dataProductDescription,
                 prevEl.dataset.dataProductType,
+                prevEl.dataset.dataProductExpirationDate,
+                prevEl.dataset.dataProductMinStock
             );
         }
 
@@ -194,25 +229,40 @@ updateFormBtn.addEventListener('click', event => {
 });
 
 //delete
-//deleteFormBtn.addEventListener('click', () => {
-   // console.log(prevIsCreate);
-   // if(prevIsCreate) {
-     //   prevIsCreate = false;
-     //   window.location.reload();
-   // } else {
-      //  console.log(prevIsCreate);
-      ///  removeErrorMassage();
-      //  if(prevEl !== null) {
-      ////      removeBtn();
-      //      activateDeactivatedForm(true);
-       //     if (confirm("Do you want to delete this product?")) {
-        //        window.location.href = `adminUser.php?user_id=${prevEl.dataset.dataUserId}&action=delete`;
-        //    }
-      //  } else  {
-      //      alert("You didn't choose nothing. Choose element to delete");
-       // }
-  //  }//
-//});
+deleteBtn.addEventListener('click', () => {
+    console.log(prevIsCreate);
+    if(prevIsCreate) {
+     prevIsCreate = false;
+       window.location.reload();
+    } else {
+        console.log(prevIsCreate);
+        removeErrorMessage();
+       if(prevEl !== null) {
+          removeBtn();
+          activateDeactivatedForm(true);
+            if (confirm("Do you want to delete this product?")) {
+                fetch(`operatorProduct.php?product_id=${prevEl.dataset.dataProductInforId}&action=delete`, {
+                    method: 'POST'
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Product deleted successfully!");
+                            window.location.reload();
+                        } else {
+                            alert(data.error || "Failed to delete product.");
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Server error occurred.");
+                    });
+           }
+        } else  {
+            alert("You didn't choose nothing. Choose element to delete");
+        }
+    }
+});
 
 // List item click
 listEl.addEventListener('click', event => {
@@ -229,107 +279,147 @@ listEl.addEventListener('click', event => {
     prevEl = currentEl;
     currentEl.classList.add('active');
 
-    fillInputEl(
+    fillInputEl (
         currentEl.dataset.dataProductName,
         currentEl.dataset.dataProductPrice,
         currentEl.dataset.dataProductStock,
         currentEl.dataset.dataProductDescription,
-        currentEl.dataset.dataProductType
+        currentEl.dataset.dataProductType,
+        currentEl.dataset.dataProductExpirationDate,
+        currentEl.dataset.dataProductMinStock
     );
+
 });
 
 //Type dropdown
-document.addEventListener('change', event => {
-    if(document.getElementById('btn-submit') !== null) {
-        if(event.target.id === 'type') {
-            if(event.target.value === "Product" ) {
-                expirationDateEL.disabled = false;
-            } else {
-                expirationDateEL.value = '';
-                expirationDateEL.disabled = true;
-            }
-        }
+function updateConditionalFields() {
+    const selectedType = typeEL.value;
+
+    if (selectedType === "Product") {
+        expirationDateEL.disabled = false;
+        minStockEL.disabled = true;
+    } else if (selectedType === "Fuel") {
+        minStockEL.disabled = false;
+        expirationDateEL.disabled = true;
+    } else {
+        expirationDateEL.disabled = true;
+        minStockEL.disabled = true;
     }
-});
+}
+
+//document.addEventListener('change', event => {
+//         if (event.target.id === 'type') {
+//             const selectedType = event.target.value;
+//
+//             if (selectedType === "Product") {
+//                 expirationDateEL.disabled = false;
+//                 minStockEL.disabled = true;
+//                 minStockEL.value = '';
+//             } else if (selectedType === "Fuel") {
+//                 minStockEL.disabled = false;
+//                 expirationDateEL.disabled = true;
+//                 expirationDateEL.value = '';
+//             } else {
+//                 // Reset both if something else is selected
+//                 expirationDateEL.disabled = true;
+//                 expirationDateEL.value = '';
+//                 minStockEL.disabled = true;
+//                 minStockEL.value = '';
+//             }
+//             }
+// });
 
 //validation before submit
-document.addEventListener('click', event => {
+    document.addEventListener('click', event => {
+        removeErrorMessage();
 
-    removeErrorMessage(); // Clear existing error alerts
-    if (event.target.id === 'btn-submit') {
-        if (event.target.innerText === 'Create' || event.target.innerText === 'Update') {
-            event.preventDefault();
+        if (event.target.id === 'btn-submit') {
+            const actionType = event.target.innerText.toLowerCase(); // 'create' or 'update'
 
-            if (productNameEl.value !== '' && productNameEl.value.length <= 100) {
-                if (descEl.value.length <= 350) {
-                    if (priceEl.value !== '' && priceEl.value >= 0) {
-                        if (stockEl.value !== '' && stockEl.value >= 0) {
-                            if (typeEl.value === "Fuel" || typeEl.value === "Product") {
+            if (actionType === 'create' || actionType === 'update') {
+                event.preventDefault();
 
-                                if ((typeEl.value === "Fuel" && minStockEl.value !== '' && minStockEl.value >= 0) ||
-                                    (typeEl.value === "Product" && expirationDateEl.value !== '')) {
+                let isValid = true;
 
-                                        const formData = new FormData();
-                                        formData.append("productname", productNameEl.value);
-                                        formData.append("price", priceEL.value);
-                                        formData.append("stock", stockEL.value);
-                                        formData.append("description", descriptionEL.value);
-                                        formData.append("type", typeEL.value);
-                                        formData.append("expirationDate", expirationDateEL.value);
-                                        formData.append("minStock", minStockEL.value);
-
-                                        let actionType = event.target.innerText.toLowerCase(); // 'create' or 'update'
-                                        let url = `Product.php?action=${actionType}`;
-
-                                        if (actionType === 'update') {
-                                            url += `&product_id=${prevEl.dataset.dataProductInforId}`;
-                                        }
-
-                                        fetch(url, {
-                                            method: 'POST',
-                                            body: formData
-                                        })
-                                            .then(res => res.json())
-                                            .then(data => {
-                                                if (data.success) {
-                                                    alert("Product saved successfully!");
-                                                    cleanInputEl();
-                                                    activateDeactivatedForm(true);
-                                                    removeBtn();
-                                                    // optionally re-fetch or update UI
-                                                } else {
-                                                    alert(data.error || "Operation failed.");
-                                                }
-                                            })
-                                            .catch(err => {
-                                                console.error(err);
-                                                alert("Server error occurred.");
-                                            });
-
-
-                                } else {
-                                    if (typeEl.value === "Fuel") {
-                                        setInvalid(minStockEl, "Set a valid minimum stock value");
-                                    } else {
-                                        setInvalid(expirationDateEl, "Set a valid expiration date");
-                                    }
-                                }
-
-                            } else {
-                                setInvalid(typeEl, "Choose a valid type");
-                            }
-                        } else {
-                            setInvalid(stockEl, "Stock must be a positive number");
-                        }
-                    } else {
-                        setInvalid(priceEl, "Price must be a positive number");
-                    }
-                } else {
-                    setInvalid(descEl, "Description must be 350 characters or less");
+                // Product name validation
+                if (!productNameEl.value || productNameEl.value.length > 100) {
+                    setInvalid(productNameEl, 'Name must be between 1 and 100 characters.');
+                    isValid = false;
                 }
-            } else {
-                setInvalid(productNameEl, "Name must be 1 to 100 characters");
+
+                // Description validation
+                if (descriptionEL.value.length > 350) {
+                    setInvalid(descriptionEL, 'Description must be 350 characters or less.');
+                    isValid = false;
+                }
+
+                // Price validation
+                if (priceEL.value === '' || priceEL.value < 0) {
+                    setInvalid(priceEl, 'Price must be a positive number.');
+                    isValid = false;
+                }
+
+                // Stock validation
+                if (stockEL.value === '' || stockEL.value < 0) {
+                    setInvalid(stockEL, 'Stock must be a positive number.');
+                    isValid = false;
+                }
+
+                // Type validation
+                if (typeEL.value !== 'Fuel' && typeEL.value !== 'Product') {
+                    setInvalid(typeEl, 'Choose a valid type.');
+                    isValid = false;
+                }
+
+                // Conditional validation
+                if (typeEL.value === 'Fuel') {
+                    if (minStockEL.value === '' || minStockEL.value < 0) {
+                        setInvalid(minStockEl, 'Set a valid minimum stock value.');
+                        isValid = false;
+                    }
+                } else if (typeEL.value === 'Product') {
+                    if (!expirationDateEL.value) {
+                        setInvalid(expirationDateEL, 'Set a valid expiration date.');
+                        isValid = false;
+                    }
+                }
+
+                if (isValid) {
+                    const formData = new FormData();
+                    formData.append("productname", productNameEl.value);
+                    formData.append("price", priceEL.value);
+                    formData.append("stock", stockEL.value);
+                    formData.append("description", descriptionEL.value);
+                    formData.append("type", typeEL.value);
+                    formData.append("expirationDate", expirationDateEL.value);
+                    formData.append("minStock", minStockEL.value);
+
+                    let url = `operatorProduct.php?action=${actionType}`;
+                    if (actionType === 'update') {
+                        url += `&product_id=${prevEl.dataset.dataProductInforId}`;
+                    }
+
+                    fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Product saved successfully!");
+                                cleanInputEl();
+                                activateDeactivatedForm(true);
+                                removeBtn();
+                            } else {
+                                alert(data.error || "Operation failed.");
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert("Server error occurred.");
+                        });
+                }
             }
         }
-    }
-});
+    });
+

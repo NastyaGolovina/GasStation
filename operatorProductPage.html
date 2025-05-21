@@ -30,10 +30,10 @@
             </div>
             <div class="dropdown text-end">
                 <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" style="filter: invert(1)" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="profilepic.jpg" alt="user" width="32" height="32" class="rounded-circle">
+                    <img src="img/person-circle.svg" alt="mdo" width="32" height="32" class="rounded-circle">
                 </a>
                 <ul class="dropdown-menu text-small" style="">
-                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    <li><a class="dropdown-item" href="login.html">Sign out</a></li>
                 </ul>
             </div>
         </div>
@@ -78,15 +78,14 @@
                             <label for="price" class="form-label">Price</label>
                             <div class="input-group has-validation">
                                 <span class="input-group-text">€</span>
-                                <input type="number" class="form-control" id="price" name="price" step="0.01" required disabled>
+                                <input type="number" class="form-control" id="price" name="price" min="0" step="0.01" required disabled>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
 
-
                         <div class="col-12">
                             <label for="stock" class="form-label">Stock</label>
-                            <input type="number" class="form-control" id="stock" name="stock" required="" disabled>
+                            <input type="number" class="form-control" min="0" id="stock" name="stock" required="" disabled>
                             <div class="invalid-feedback"></div>
                         </div>
 
@@ -98,7 +97,7 @@
 
                         <div class="col-md-12">
                             <label for="type" class="form-label">Type</label>
-                            <select class="form-select" id="type" name="type" required="" disabled>
+                            <select id="type" class="form-select" name="type">
                                 <option value="">Choose...</option>
                                 <option value="Fuel">Fuel</option>
                                 <option value="Product">Product</option>
