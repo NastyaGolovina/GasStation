@@ -16,5 +16,4 @@ if (!empty($connection)) {
     }
     $tablesToJson['ServiceTable'] = $Service;
 }
-
 echo json_encode($tablesToJson);
