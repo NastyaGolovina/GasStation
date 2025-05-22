@@ -55,3 +55,4 @@ ADD COLUMN Priority ENUM('Low', 'Medium', 'High');
 
 ALTER TABLE ScheduleService
 DROP COLUMN Service;
+
