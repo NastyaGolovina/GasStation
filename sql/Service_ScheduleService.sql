@@ -52,3 +52,6 @@ VALUES (
 ALTER TABLE service
     ADD COLUMN Duration VARCHAR(10),
 ADD COLUMN Priority ENUM('Low', 'Medium', 'High');
+
+ALTER TABLE ScheduleService
+DROP COLUMN Service;
