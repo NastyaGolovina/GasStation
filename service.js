@@ -98,7 +98,7 @@ function setInvalid(el, errorText) {
 }
 
 function fetchAndRenderServices() {
-    fetch("usersInfoJson.php")
+    fetch("servicesInfoJson.php")
         .then(response => response.json())
         .then(result => {
             listEl.innerHTML = "";
