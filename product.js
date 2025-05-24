@@ -24,7 +24,7 @@ function activateDeactivatedForm(isDisabled) {
     stockEL.disabled = isDisabled;
     descriptionEL.disabled = isDisabled;
     typeEL.disabled = isDisabled;
-    expirationDateEL.disabled = isDisabled;
+    expirationDateEL.disabled = true;
     minStockEL.disabled = isDisabled;
 }
 
@@ -61,7 +61,7 @@ function fillInputEl(productName, price, stock, description, type, expirationDat
     expirationDateEL.value = expirationDate || '';
     minStockEL.value = minStock || '';
 
-    updateConditionalFields();
+   // updateConditionalFields();
 }
 
 
@@ -170,6 +170,7 @@ fetch("productInfoJson.php")
         }
 
         if (productInfor.length > 0) {
+            activateDeactivatedForm(true);
                 fillInputEl(
                     productInfor[0].ProductName,
                     productInfor[0].Price,
@@ -179,7 +180,6 @@ fetch("productInfoJson.php")
                     productInfor[0].ExpirationDate,
                     productInfor[0].MinStock
         );
-            activateDeactivatedForm(true);
             updateConditionalFields();
 
         }
@@ -221,6 +221,7 @@ updateBtn.addEventListener('click', event => {
                 prevEl.dataset.dataProductExpirationDate,
                 prevEl.dataset.dataProductMinStock
             );
+            // updateConditionalFields();
         }
 
     } else {
@@ -233,7 +234,6 @@ deleteBtn.addEventListener('click', () => {
     console.log(prevIsCreate);
     if(prevIsCreate) {
      prevIsCreate = false;
-       window.location.reload();
     } else {
         console.log(prevIsCreate);
         removeErrorMessage();
@@ -248,7 +248,6 @@ deleteBtn.addEventListener('click', () => {
                     .then(data => {
                         if (data.success) {
                             alert("Product deleted successfully!");
-                            window.location.reload();
                         } else {
                             alert(data.error || "Failed to delete product.");
                         }
@@ -295,6 +294,8 @@ listEl.addEventListener('click', event => {
 function updateConditionalFields() {
     const selectedType = typeEL.value;
 
+    if (typeEL.disabled) return;
+
     if (selectedType === "Product") {
         expirationDateEL.disabled = false;
         minStockEL.disabled = true;
@@ -306,28 +307,6 @@ function updateConditionalFields() {
         minStockEL.disabled = true;
     }
 }
-
-//document.addEventListener('change', event => {
-//         if (event.target.id === 'type') {
-//             const selectedType = event.target.value;
-//
-//             if (selectedType === "Product") {
-//                 expirationDateEL.disabled = false;
-//                 minStockEL.disabled = true;
-//                 minStockEL.value = '';
-//             } else if (selectedType === "Fuel") {
-//                 minStockEL.disabled = false;
-//                 expirationDateEL.disabled = true;
-//                 expirationDateEL.value = '';
-//             } else {
-//                 // Reset both if something else is selected
-//                 expirationDateEL.disabled = true;
-//                 expirationDateEL.value = '';
-//                 minStockEL.disabled = true;
-//                 minStockEL.value = '';
-//             }
-//             }
-// });
 
 //validation before submit
     document.addEventListener('click', event => {
