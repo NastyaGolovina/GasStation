@@ -37,8 +37,10 @@ reserved = {
 }
 
 tokens = ["STRING", "RBRACE", "LBRACE", "COMMA", "LPAREN", "RPAREN", "QUOTE", "SEMICOLON", "EQUALS", "AND",
-          "OR", "COLON", "MINUS", "ASSIGN", "DATE", "TIME"] + list(reserved.values())
+          "OR", "COLON", "MINUS", "ASSIGN", "DATE", "TIME", "LSQRBRACE", "RSQRBRACE"] + list(reserved.values())
 
+t_LSQRBRACE = r"\["
+t_RSQRBRACE = r"\]"
 t_LPAREN = r"\("
 t_RPAREN = r"\)"
 t_COMMA = r","
@@ -105,6 +107,7 @@ def p_statement(p):
     statement : availabilityRule
               | unavailabilityRule
               | queryRule
+              | var
     """
 
 
@@ -160,7 +163,29 @@ def p_word(p):
     """
     p[0] = p[1]
 
+def p_arrEls(p):
+    """
+    arrEl : QUOTE sentence QUOTE COMMA arrEl
+    """
+    p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
 
+def p_arrEl(p):
+    """
+    arrEl : QUOTE sentence QUOTE
+    """
+    p[0] = p[1] + p[2] + p[3]
+
+def p_arr(p):
+    """
+    arr : LSQRBRACE arrEl RSQRBRACE
+    """
+    p[0] = p[1]
+
+def p_var(p):
+    """
+    var : STRING ASSIGN arr SEMICOLON
+    """
+    print('my arr')
 def p_query(p):
     """
     queryRule : RESERVED_QUERY COLON \
@@ -203,12 +228,9 @@ test_string = """set availability:
                 days: Monday to Friday;
                 hours: 08:00-12:00;
 
-
-
                 set unavailability:
                 date: 2025-04-10 to 2025-04-12;
                 reason: vacation;
-
 
                 query:
                 type: services;
@@ -219,6 +241,9 @@ test_string = """set availability:
                 type: services;
                 period:  2025-01-01 to 2025-07-20;
                 filter: type == "Car Wash";
+                
+                
+                employees_dayoff = ["John", "Anna", "Carlos"];
                 """
 
 parser.parse(test_string)
