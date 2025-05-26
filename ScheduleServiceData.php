@@ -8,7 +8,7 @@ $query = "
         ss.*,
         s.Name as ServiceName,
         u.Name as EmployeeServiceName,
-        c.Name as CustomerName,
+        c.Name as CustomerName, 
         ss.CustomerID
     FROM ScheduleService ss
     LEFT JOIN service s ON ss.ServiceID = s.ServiceID

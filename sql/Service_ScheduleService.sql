@@ -63,4 +63,4 @@ DELETE FROM ScheduleService
 WHERE EmployeeService = 0;
 
 ALTER TABLE ScheduleService
-    ADD CONSTRAINT fk_EmployeeService FOREIGN KEY (EmployeeService) REFERENCES User(UserID);
+ADD CONSTRAINT fk_EmployeeService FOREIGN KEY (EmployeeService) REFERENCES User(UserID);
