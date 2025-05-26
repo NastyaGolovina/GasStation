@@ -5,7 +5,7 @@ try {
       header('Content-Type: application/json');
 
       // Get product-related data from POST
-      $productName = isset($_POST['productname']) ? $_POST['productname'] : '';
+      $productName = isset($_POST['productName']) ? $_POST['productName'] : '';
       $price = isset($_POST['price']) ? $_POST['price'] : '';
       $stock = isset($_POST['stock']) ? $_POST['stock'] : '';
       $description = isset($_POST['description']) ? $_POST['description'] : '';

@@ -23,7 +23,7 @@ try:
 
     for x in myResult:
         print(x)
-
+    print(2+9)
 
     print("Python script ended")
 except Exception as e:
