@@ -1,5 +1,15 @@
 import ply.yacc as yacc
 import ply.lex as lex
+import mysql.connector
+from datetime import date
+
+
+mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="yfcnz212006",
+        database="gasstation",
+    )
 
 reserved = {
     "availability": "RESERVED_AVAILABILITY",
@@ -22,7 +32,8 @@ reserved = {
     "query": "RESERVED_QUERY",
     "period": "RESERVED_PERIOD",
     "type": "RESERVED_TYPE",
-    "filter": "RESERVED_FILTER"
+    "filter": "RESERVED_FILTER",
+    "services": "RESERVED_SERVICES"
 }
 
 tokens = ["STRING", "RBRACE", "LBRACE", "COMMA", "LPAREN", "RPAREN", "QUOTE", "SEMICOLON", "EQUALS", "AND",
@@ -106,12 +117,20 @@ def p_Unavailability(p):
     print('unavailability rule work')
 
 
-def p_date(p):
+def p_dates(p):
     """
      dateRule : DATE RESERVED_TO DATE
-             | DATE
      """
+    start_date = date.fromisoformat(p[1])
+    end_date = date.fromisoformat(p[3])
+    p[0] = (start_date, end_date)
 
+def p_date(p):
+    """
+     dateRule : DATE
+     """
+    my_date = date.fromisoformat(p[1])
+    p[0] = (my_date, None)
 
 def p_Availability(p):
     """
@@ -132,20 +151,49 @@ def p_days(p):
 def p_str(p):
     """
     sentence : STRING sentence
-            | STRING
     """
+    p[0] = p[1] + " " + p[2]
+
+def p_word(p):
+    """
+    sentence : STRING
+    """
+    p[0] = p[1]
 
 
 def p_query(p):
     """
     queryRule : RESERVED_QUERY COLON \
-            RESERVED_TYPE COLON sentence SEMICOLON \
-            RESERVED_PERIOD COLON DATE RESERVED_TO DATE SEMICOLON \
+            RESERVED_TYPE COLON RESERVED_SERVICES SEMICOLON \
+            RESERVED_PERIOD COLON dateRule SEMICOLON \
             RESERVED_FILTER COLON RESERVED_TYPE EQUALS QUOTE sentence QUOTE SEMICOLON
-
-
     """
-    print('query rule work')
+    try:
+        start_date, end_date = p[9]
+        if not end_date:
+            end_date = start_date
+
+        myCursor = mydb.cursor(dictionary=True)
+
+        myCursor.execute("""SELECT s.*, u.Name as customer_name , service.Name As service_name
+                            FROM scheduleservice s
+                            inner join Customer c on c.CustomerID = s.CustomerID
+                            inner join User u on u.UserID = c.UserID
+                            inner join service on service.ServiceID = s.ServiceID
+                            where date >= '""" + str(start_date) + """' AND date <= '""" + str(end_date) + """' and
+                                            service.Name = '""" + str(p[16]) + """';""")
+
+        myResult = myCursor.fetchall()
+
+        if(myResult):
+            print("Query result:")
+            for row in myResult:
+                print("- " + str(row['Date']) + " : " + str(row['service_name']) + " for " + str(row['customer_name']))
+        else:
+            print('No result')
+
+    except mysql.connector.Error as err:
+        print("SQL Error:", err)
 
 
 lexer = lex.lex()
@@ -164,8 +212,14 @@ test_string = """set availability:
 
                 query:
                 type: services;
-                period: 2025-01-01 to 2025-01-31;
-                filter: type == "oil change";
+                period: 2025-01-01 to 2025-07-20;
+                filter: type == "Fuel Refill";
+                
+                query:
+                type: services;
+                period:  2025-01-01 to 2025-07-20;
+                filter: type == "Car Wash";
                 """
 
 parser.parse(test_string)
+
