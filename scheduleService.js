@@ -17,25 +17,52 @@ let prevEl = null;
 createBtnEl.disabled = true;
 deleteBtnEl.disabled = true;
 
-function activateEditableFields(editable) {
-    empServEl.disabled = !editable;
-    materialEl.disabled = !editable;
-    [dateEl, serviceEl, descEl, custEl, statusEl].forEach(el => el.disabled = true);
+// Fetch and fill Service dropdown
+function fetchServices() {
+    fetch("getServices.php")
+        .then(res => res.json())
+        .then(data => {
+            serviceEl.innerHTML = `<option value="">Select Service</option>`;
+            data.services.forEach(service => {
+                const option = document.createElement("option");
+                option.value = service.ServiceID;
+                option.textContent = service.Name;
+                serviceEl.appendChild(option);
+            });
+        })
+        .catch(err => console.error("Failed to load services:", err));
 }
 
-function cleanInputs() {
-    empServEl.value = "";
-    materialEl.value = "";
+// Fetch and fill Customers with permission 'CUSTOMER'
+function fetchCustomers() {
+    fetch("getCustomers.php")
+        .then(res => res.json())
+        .then(data => {
+            custEl.innerHTML = `<option value="">Select Customer</option>`;
+            data.customers.forEach(customer => {
+                const option = document.createElement("option");
+                option.value = customer.UserID;
+                option.textContent = customer.Name;
+                custEl.appendChild(option);
+            });
+        })
+        .catch(err => console.error("Failed to load customers:", err));
 }
 
-function fillInputs(data) {
-    dateEl.value = data.Date;
-    serviceEl.value = data.Service;
-    descEl.value = data.Description;
-    custEl.value = data.Customer;
-    statusEl.value = data.Status;
-    empServEl.value = data.EmployeeService;
-    materialEl.value = data.Material;
+// Fetch and fill EmployeeService users with permission 'EMPLOYEE_SERVICES'
+function fetchEmployeeServices() {
+    fetch("getEmployeeServices.php")
+        .then(res => res.json())
+        .then(data => {
+            empServEl.innerHTML = `<option value="">Select Employee Service</option>`;
+            data.employees.forEach(emp => {
+                const option = document.createElement("option");
+                option.value = emp.UserID;
+                option.textContent = emp.Name;
+                empServEl.appendChild(option);
+            });
+        })
+        .catch(err => console.error("Failed to load employee services:", err));
 }
 
 function addListItem(data, index) {
@@ -43,14 +70,24 @@ function addListItem(data, index) {
     aEl.className = "list-group-item list-group-item-action py-3 lh-sm";
     aEl.dataset.scheduleId = data.ServiceScheduleID;
 
-    Object.entries(data).forEach(([key, value]) => {
-        aEl.dataset[key.toLowerCase()] = value;
-    });
+    // Save all needed dataset values
+    aEl.dataset.date = data.Date;
+    aEl.dataset.serviceid = data.ServiceID;
+    aEl.dataset.servicename = data.ServiceName;
+    aEl.dataset.description = data.Description;
+    aEl.dataset.customer = data.CustomerID;
+    aEl.dataset.customername = data.CustomerName;
+    aEl.dataset.status = data.Status;
+    aEl.dataset.employeeservice = data.EmployeeService;
+    aEl.dataset.employeeservicename = data.EmployeeServiceName;
+    aEl.dataset.material = data.Material;
 
     const divHeader = document.createElement("div");
     divHeader.className = "d-flex w-100 align-items-center justify-content-between";
+
     const strongEl = document.createElement("strong");
-    strongEl.innerText = `${data.Date} - ${data.Service}`;
+    strongEl.innerText = `${data.Date} - ${data.ServiceName || "Unknown"} - ${data.EmployeeServiceName || "No Employee"}`;
+
     divHeader.appendChild(strongEl);
     aEl.appendChild(divHeader);
     listEl.appendChild(aEl);
@@ -61,20 +98,46 @@ function addListItem(data, index) {
     }
 }
 
+function fillInputs(data) {
+    dateEl.value = data.date;
+    serviceEl.value = data.serviceid;
+    descEl.value = data.description;
+    custEl.value = data.customer;
+    statusEl.value = data.status;
+    empServEl.value = data.employeeservice || "";
+    materialEl.value = data.material;
+}
+
+function activateEditableFields(active) {
+    empServEl.disabled = !active;
+    materialEl.disabled = !active;
+    // Other fields disabled always
+    dateEl.disabled = true;
+    serviceEl.disabled = true;
+    descEl.disabled = true;
+    custEl.disabled = true;
+    statusEl.disabled = true;
+}
+
+function cleanInputs() {
+    empServEl.value = "";
+    materialEl.value = "";
+}
+
 function removeActiveClass() {
     if (prevEl) prevEl.classList.remove("active");
 }
 
 function removeSubmitBtn() {
-    const existing = document.getElementById("btn-submit");
-    if (existing) existing.remove();
+    const btn = document.getElementById("btn-submit");
+    if (btn) btn.remove();
 }
 
 function createSubmitBtn(text) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.id = "btn-submit";
-    btn.className = "w-100 btn btn-primary btn-lg";
+    btn.className = "w-100 btn btn-primary btn-lg mt-3";
     btn.innerText = text;
     formEl.appendChild(btn);
 }
@@ -94,88 +157,76 @@ function setInvalid(el, message) {
 function fetchAndRenderSchedules() {
     fetch("ScheduleServiceData.php")
         .then(res => res.json())
-        .then(result => {
+        .then(data => {
             listEl.innerHTML = "";
-            const schedules = result.ScheduleServiceTable;
-            schedules.forEach((item, index) => addListItem(item, index));
-            if (schedules.length > 0) fillInputs(schedules[0]);
-        });
+            const items = data.ScheduleServiceTable || [];
+            items.forEach((item, idx) => addListItem(item, idx));
+            if (items[0]) fillInputs(items[0]);
+        })
+        .catch(err => console.error("Failed to load schedule data:", err));
 }
-
-fetch("DBErrorServiceJson.php")
-    .then(res => res.json())
-    .then(result => {
-        if (result.isError) {
-            const errorMsg = document.getElementById("errorMsg");
-            errorMsg.style.display = "block";
-            errorMsg.innerText = "Something went wrong";
-        }
-    });
-
-fetchAndRenderSchedules();
 
 updateBtnEl.addEventListener("click", () => {
     if (prevEl) {
-        formEl.classList.remove("was-validated");
-        removeErrors();
         activateEditableFields(true);
         removeSubmitBtn();
         createSubmitBtn("Update");
+
         fillInputs({
-            Date: prevEl.dataset.date,
-            Service: prevEl.dataset.service,
-            Description: prevEl.dataset.description,
-            Customer: prevEl.dataset.customer,
-            Status: prevEl.dataset.status,
-            EmployeeService: prevEl.dataset.employeeservice,
-            Material: prevEl.dataset.material
+            date: prevEl.dataset.date,
+            serviceid: prevEl.dataset.serviceid,
+            description: prevEl.dataset.description,
+            customer: prevEl.dataset.customer,
+            status: prevEl.dataset.status,
+            employeeservice: prevEl.dataset.employeeservice,
+            material: prevEl.dataset.material
         });
     } else {
-        alert("Please select a schedule to update.");
+        alert("Please select an item first.");
     }
 });
 
-listEl.addEventListener("click", event => {
+listEl.addEventListener("click", e => {
     formEl.classList.remove("was-validated");
     removeErrors();
     removeSubmitBtn();
     activateEditableFields(false);
     removeActiveClass();
 
-    let currentEl = event.target;
-    while (!currentEl.classList.contains("list-group-item")) {
-        currentEl = currentEl.parentNode;
+    let el = e.target;
+    while (el && !el.classList.contains("list-group-item")) {
+        el = el.parentNode;
     }
 
-    prevEl = currentEl;
+    if (!el) return;
+
+    prevEl = el;
     prevEl.classList.add("active");
 
     fillInputs({
-        Date: currentEl.dataset.date,
-        Service: currentEl.dataset.service,
-        Description: currentEl.dataset.description,
-        Customer: currentEl.dataset.customer,
-        Status: currentEl.dataset.status,
-        EmployeeService: currentEl.dataset.employeeservice,
-        Material: currentEl.dataset.material
+        date: el.dataset.date,
+        serviceid: el.dataset.serviceid,
+        description: el.dataset.description,
+        customer: el.dataset.customer,
+        status: el.dataset.status,
+        employeeservice: el.dataset.employeeservice,
+        material: el.dataset.material
     });
 });
 
-document.addEventListener("click", event => {
-    if (event.target.id === "btn-submit") {
-        event.preventDefault();
+document.addEventListener("click", e => {
+    if (e.target.id === "btn-submit") {
+        e.preventDefault();
         formEl.classList.add("was-validated");
         removeErrors();
 
         let valid = true;
-
-        if (!empServEl.value || empServEl.value.length > 100) {
-            setInvalid(empServEl, "Employee Service must be 1–100 characters.");
+        if (!empServEl.value) {
+            setInvalid(empServEl, "Please select an employee service.");
             valid = false;
         }
-
         if (!materialEl.value || materialEl.value.length > 100) {
-            setInvalid(materialEl, "Material must be 1–100 characters.");
+            setInvalid(materialEl, "Invalid material.");
             valid = false;
         }
 
@@ -184,24 +235,32 @@ document.addEventListener("click", event => {
             formData.append("employee_service", empServEl.value);
             formData.append("material", materialEl.value);
 
-            const id = prevEl.dataset.scheduleId;  
-            const url = `ScheduleService.php?action=update&serviceSchedule_id=${id}`;
-
-            fetch(url, {
+            const id = prevEl.dataset.scheduleId;
+            fetch(`ScheduleService.php?action=update&serviceSchedule_id=${id}`, {
                 method: "POST",
                 body: formData
             })
                 .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
+                .then(res => {
+                    if (res.success) {
                         fetchAndRenderSchedules();
                         cleanInputs();
-                        activateEditableFields(false);
                         removeSubmitBtn();
+                        activateEditableFields(false);
+                        // Show Bootstrap modal popup instead of alert
+                        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        successModal.show();
                     } else {
-                        alert(data.error || "Update failed.");
+                        alert(res.error || "Failed to update.");
                     }
-                });
+                })
+
         }
     }
 });
+
+// Initialize dropdowns and data on page load
+fetchServices();
+fetchCustomers();
+fetchEmployeeServices();
+fetchAndRenderSchedules();

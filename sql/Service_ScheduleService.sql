@@ -56,3 +56,11 @@ ADD COLUMN Priority ENUM('Low', 'Medium', 'High');
 ALTER TABLE ScheduleService
 DROP COLUMN Service;
 
+ALTER TABLE ScheduleService
+    MODIFY COLUMN EmployeeService INT;
+
+DELETE FROM ScheduleService
+WHERE EmployeeService = 0;
+
+ALTER TABLE ScheduleService
+    ADD CONSTRAINT fk_EmployeeService FOREIGN KEY (EmployeeService) REFERENCES User(UserID);

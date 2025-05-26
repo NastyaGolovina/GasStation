@@ -2,21 +2,23 @@
 global $connection;
 session_start();
 header('Content-Type: application/json');
-include('DBConnection.php');
+include('DBConnection.php'); // Should set $connection
 
-$action = isset($_GET['action']) ? $_GET['action'] : '';
-$serviceSchedule_id = isset($_GET['serviceSchedule_id']) ? $_GET['serviceSchedule_id'] : null;
+$action = $_GET['action'] ?? '';
+$serviceSchedule_id = $_GET['serviceSchedule_id'] ?? null;
 
 function safeInput($conn, $value) {
     return mysqli_real_escape_string($conn, trim($value));
 }
 
+// 1. Connection check
 if (!$connection) {
     http_response_code(500);
     echo json_encode(['error' => 'Database connection failed']);
     exit;
 }
 
+// 2. Handle GET (if action is blank)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === '') {
     $query = "SELECT * FROM ScheduleService";
     $result = mysqli_query($connection, $query);
@@ -34,50 +36,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === '') {
     exit;
 }
 
-if ($action !== 'update') {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid action, only update is allowed']);
-    exit;
-}
+// 3. Handle update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'update') {
+    $employee_service = safeInput($connection, $_POST['employee_service'] ?? '');
+    $material = safeInput($connection, $_POST['material'] ?? '');
 
-$employee_service = isset($_POST["employee_service"]) ? safeInput($connection, $_POST["employee_service"]) : '';
-$material = isset($_POST["material"]) ? safeInput($connection, $_POST["material"]) : '';
+    if (!$employee_service || !$material || !$serviceSchedule_id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing required fields']);
+        exit;
+    }
 
-if ($employee_service === '') {
-    http_response_code(400);
-    echo json_encode(['error' => 'Employee service is required']);
-    exit;
-}
+    // Optional: check if record exists (nice to have)
+    $check = $connection->prepare("SELECT 1 FROM ScheduleService WHERE ServiceScheduleID = ?");
+    $check->bind_param("i", $serviceSchedule_id);
+    $check->execute();
+    $checkResult = $check->get_result();
 
-if ($material === '') {
-    http_response_code(400);
-    echo json_encode(['error' => 'Material is required']);
-    exit;
-}
+    if ($checkResult->num_rows === 0) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Record not found']);
+        exit;
+    }
 
-if (!$serviceSchedule_id) {
-    http_response_code(400);
-    echo json_encode(['error' => 'ServiceSchedule ID is required for update']);
-    exit;
-}
+    // Update using prepared statement
+    $stmt = $connection->prepare("UPDATE ScheduleService SET EmployeeService = ?, Material = ? WHERE ServiceScheduleID = ?");
+    $stmt->bind_param("ssi", $employee_service, $material, $serviceSchedule_id);
 
-// Check if record exists
-$resultCheck = $connection->query("SELECT * FROM ScheduleService WHERE ServiceScheduleID = '$serviceSchedule_id'");
-if (!$resultCheck || $resultCheck->num_rows === 0) {
-    echo json_encode(['error' => 'No record found with the provided ID']);
-    exit;
-}
-
-$query = "UPDATE ScheduleService SET EmployeeService = '$employee_service', Material = '$material' WHERE ServiceScheduleID = '$serviceSchedule_id'";
-
-if ($connection->query($query)) {
-    if ($connection->affected_rows > 0) {
+    if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['error' => 'No rows updated. Maybe data is unchanged or ID does not exist.']);
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to update service']);
     }
-} else {
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to update service']);
+
+    exit;
 }
+
+// 4. Fallback for invalid actions
+http_response_code(400);
+echo json_encode(['error' => 'Invalid request or unsupported action']);
+exit;
 ?>
