@@ -4,6 +4,8 @@ import mysql.connector
 from datetime import date
 
 
+varList = []
+
 mydb = mysql.connector.connect(
         host="localhost",
         user="root",
@@ -167,25 +169,31 @@ def p_arrEls(p):
     """
     arrEl : QUOTE sentence QUOTE COMMA arrEl
     """
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+    p[0] = p[2] + ' ' + p[5]
 
 def p_arrEl(p):
     """
     arrEl : QUOTE sentence QUOTE
     """
-    p[0] = p[1] + p[2] + p[3]
+    p[0] = p[2]
 
 def p_arr(p):
     """
     arr : LSQRBRACE arrEl RSQRBRACE
     """
-    p[0] = p[1]
+    p[0] = p[2].split()
 
+def searchVar(varName, varValue):
+    for i in varList:
+        if (i[0] == varName):
+            i[1] = varValue
+            return
+    varList.append([varName, varValue])
 def p_var(p):
     """
     var : STRING ASSIGN arr SEMICOLON
     """
-    print('my arr')
+    searchVar(p[1],p[3])
 def p_query(p):
     """
     queryRule : RESERVED_QUERY COLON \
@@ -242,9 +250,14 @@ test_string = """set availability:
                 period:  2025-01-01 to 2025-07-20;
                 filter: type == "Car Wash";
                 
-                
                 employees_dayoff = ["John", "Anna", "Carlos"];
+                employees_dayoff = ["John"];
+                employees_dayoff = ["John", "Anna", "Carlos", "Anna", "Carlos"];
+                employees = ["John", "Anna", "Carlos"];
+                emp = ["John", "Anna", "Carlos"];
                 """
 
 parser.parse(test_string)
+
+# print(varList)
 
