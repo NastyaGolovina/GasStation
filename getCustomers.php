@@ -4,8 +4,9 @@ include('DBConnection.php');
 header('Content-Type: application/json');
 
 $query = "
-    SELECT u.UserID, u.Name
-    FROM User u
+    SELECT c.CustomerID, u.Name
+    FROM Customer c
+    JOIN User u ON c.UserID = u.UserID
     WHERE u.PermissionID = 'CUSTOMER'
 ";
 
