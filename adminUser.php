@@ -43,23 +43,37 @@
                 }
             } elseif ($_GET['action'] == 'update') {
                 $user_id = $_GET["user_id"];
-                $consultation = "UPDATE User
-                SET Name = '".$name."', Address = '".$address."', NIF = '".$nif."', Email = '".$email."',
-                 Login = '".$login."', Password = '".$password."', Status = ".$status." , PermissionID = '".$permission."'
-                WHERE UserID = '".$user_id."';";
 
-                if (!empty($connection)) {
-                    if ($connection->query($consultation) === TRUE) {
-                        if($permission != "CUSTOMER") {
-                            $consultation = "Delete from Customer where UserID = '".$user_id."';";
-                            if($connection->query($consultation) === TRUE){
-                                header('location:adminUsersPage.html');
-                            } else {
-                                session_start();
-                                $_SESSION["isError"] = true;
-                                header('location:adminUsersPage.html');
+
+                if($permission != "CUSTOMER") {
+                    $consultation = "Delete from Customer where UserID = '" . $user_id . "';";
+                    if (!empty($connection)) {
+                        if ($connection->query($consultation) === TRUE) {
+                            $consultation = "UPDATE User
+                            SET Name = '".$name."', Address = '".$address."', NIF = '".$nif."', Email = '".$email."',
+                             Login = '".$login."', Password = '".$password."', Status = ".$status." , PermissionID = '".$permission."'
+                            WHERE UserID = '".$user_id."';";
+                            if (!empty($connection)) {
+                                if ($connection->query($consultation) === FALSE) {
+                                    session_start();
+                                    $_SESSION["isError"] = true;
+                                    header('location:adminUsersPage.html');
+                                }
                             }
+                            header('location:adminUsersPage.html');
                         } else {
+                            session_start();
+                            $_SESSION["isError"] = true;
+                            header('location:adminUsersPage.html');
+                        }
+                    }
+                } else {
+                    $consultation = "UPDATE User
+                            SET Name = '".$name."', Address = '".$address."', NIF = '".$nif."', Email = '".$email."',
+                             Login = '".$login."', Password = '".$password."', Status = ".$status." , PermissionID = '".$permission."'
+                            WHERE UserID = '".$user_id."';";
+                    if (!empty($connection)) {
+                        if ($connection->query($consultation) === TRUE) {
                             $consultation = "Select * from Customer where UserID = '".$user_id."';";
                             if (!empty($connection)) {
                                 $result = mysqli_query($connection,$consultation);
@@ -88,12 +102,10 @@
                                     header('location:adminUsersPage.html');
                                 }
                             }
+                            header('location:adminUsersPage.html');
                         }
-
-                        header('location:adminUsersPage.html');
                     }
                 }
-
 
             }
         } elseif ($_GET['action'] == 'delete') {
