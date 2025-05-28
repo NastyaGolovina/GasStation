@@ -268,6 +268,7 @@ function addBtnToCard(card, name) {
     btn.type = 'button';
     btn.innerText = name;
     btn.dataset.idBtn = "item-btn";
+    btn.dataset.btnName = name;
     card.querySelector(".card-body").appendChild(btn);
 }
 
@@ -580,15 +581,18 @@ fetch("saleInfoJson.php")
         if(event.target.id==='btn-submit'){
             if(event.target.innerText==='Create'||event.target.innerText==='Update'){
                 event.preventDefault();
-
                 let isValid=true;
                 isValid=validateDate()&&isValid;
                 isValid=validateCustomer()&&isValid;
                 isValid=validateMovementCard()&&isValid;
                 isValid = pointQtyValidation() && isValid;
-
+                const emptyCard =document.querySelector('button[data-btn-name="Ok"]');
 
                 if(isValid){
+                    if (emptyCard !== null) {
+                        cards[cards.length -1].remove();
+                        cards.pop();
+                    }
                     formEl.method="post";
                     const lpId= loyaltyEl.dataset.lpId !== undefined ? loyaltyEl.dataset.lpId : -1;
                     if(event.target.innerText==='Update'){
