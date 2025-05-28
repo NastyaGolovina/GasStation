@@ -25,7 +25,7 @@
                 if($row['PermissionID'] == 'ADMINISTRATOR'){
                     header('location:adminHomePage.html');
                 } elseif ($row['PermissionID'] == 'CUSTOMER') {
-                    //header('location:adminHomePage.html');
+                    header('location:customerHome.html');
                 } elseif ($row['PermissionID'] == 'EMPLOYEE_ADMIN') {
                     header('location:employeeAdminHome.html');
                 } elseif ($row['PermissionID'] == 'EMPLOYEE_SERVICES') {
@@ -33,7 +33,7 @@
                 } elseif ($row['PermissionID'] == 'OPERATOR') {
                     header('location:operatorHomePage.html');
                 } elseif ($row['PermissionID'] == 'STATION_MANAGER') {
-                    //header('location:adminHomePage.html');
+//                    header('location:customerHome.html');
                 } else {
                     header('location:login.html');
                     $_SESSION["UserID"] = "";
