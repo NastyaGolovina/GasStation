@@ -56,7 +56,7 @@ CREATE TABLE Movement_Card (
 
 
 INSERT INTO Loyalty_Card (Points, CustomerID) VALUES
-(1000, 1);
+(1000, 1),
 (1500, 2);
 
 
