@@ -53,6 +53,12 @@ CREATE TABLE Movement_Card (
 );
 
 
+CREATE TABLE Pump_Management (
+      PumpID INT PRIMARY KEY AUTO_INCREMENT ,
+      FuelLevel INT,
+      FuelType VARCHAR(100),
+      Status VARCHAR(100)
+);
 
 
 INSERT INTO Loyalty_Card (Points, CustomerID) VALUES
@@ -82,5 +88,11 @@ INSERT INTO Item (SaleID, ProductID, Price, Qty) VALUES
 
 
 INSERT INTO Movement_Card (Date, PointsQnt, CustomerID, LoyaltyCardID, PrizeProductID, LoyaltyProgramID, SaleID) VALUES
-('2025-05-02', -50, 1, 1, 3, 1, 1);  
+('2025-05-02', -50, 1, 1, 3, 1, 1);
+
+
+INSERT INTO Pump_Management (FuelLevel, FuelType, Status)  VALUES
+(60, Diesel, Active );
+(80, Petrol, Inactive );
+
 
