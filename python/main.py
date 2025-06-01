@@ -450,6 +450,12 @@ test_string = """def myfuncAV():
                  employees_dayoff = ["John", "Anna", "Carlos"];
                  myfuncAV();
                  myfuncUNAV();
+                 
+                 
+                query:
+                type: services,
+                period: 2025-01-01 to 2025-07-20,
+                filter: type == "Fuel Refill";
                 """
 
 parser.parse(test_string)
