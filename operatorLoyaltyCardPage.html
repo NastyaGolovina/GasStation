@@ -69,13 +69,15 @@
 
                         <div class="col-sm-12">
                             <label for="customerID" class="form-label">Customer</label>
-                            <input type="number" class="form-control" id="customerID" name="customer" required disabled>
+                            <select class="form-select" id="customerID" name="customer" required="" disabled>
+                                <option value="">Choose...</option>
+                            </select>
                             <div class="invalid-feedback"></div>
                         </div>
 
                         <div class="col-12">
                             <label for="point" class="form-label">Points</label>
-                            <input type="number" class="form-control" id="point" name="point" required disabled>
+                            <input type="number" class="form-control" id="point" name="point"  min="0" step="1" required disabled>
                             <div class="invalid-feedback"></div>
                         </div>
                     </div>

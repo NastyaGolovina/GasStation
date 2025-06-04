@@ -29,10 +29,11 @@ function cleanInputEl() {
 
 }
 
-function fillInputEl(loyaltyCardID,customerID,point ) {
+function fillInputEl(loyaltyCardID,point, customerID ) {
     loyaltyCardIdEL.value = loyaltyCardID;
-    customerIdEL.value = customerID;
     pointsEL.value = point;
+    customerIdEL.value = customerID;
+
 
 }
 
@@ -49,6 +50,14 @@ function removeActiveClass() {
     }
 }
 
+function addOptions(parentEl, value, text) {
+    const optionEl = document.createElement("option");
+    optionEl.value = value;
+    optionEl.innerText = text;
+    parentEl.appendChild(optionEl);
+
+}
+
 function createSubmitBtn(btnName) {
     const btnEl = document.createElement("button");
     btnEl.className = "w-100 btn btn-primary btn-lg";
@@ -59,26 +68,23 @@ function createSubmitBtn(btnName) {
 
 }
 
-function addElInList(id, loyaltyCardId, customerId, point, i) {
+function addElInList( loyaltyCardId, point, customerId, customerName, i) {
     const aEl = document.createElement("a");
     const divHeader = document.createElement("div");
     const strongEl = document.createElement("strong");
     const divText = document.createElement("div");
 
     aEl.dataset.loyaltyCardId = loyaltyCardId;
-    aEl.dataset.customerId = customerId;
     aEl.dataset.point= point;
-
-
+    aEl.dataset.customerId = customerId;
+    aEl.dataset.customerName = customerName;
 
     aEl.className = "list-group-item list-group-item-action py-3 lh-sm";
     divHeader.className = "d-flex w-100 align-items-center justify-content-between";
     strongEl.className = "mb";
     divText.className = "col-10 mb-1 small";
-
-    strongEl.innerText = name;
+    strongEl.innerText  = ` Points: ${point} | Customer: ${customerId}`;
     divHeader.appendChild(strongEl);
-    divText.innerText = ` Points: ${point} | Customer: ${customerId}`;
     aEl.appendChild(divHeader);
     aEl.appendChild(divText);
     listEl.appendChild(aEl);
@@ -118,9 +124,15 @@ fetch("DBErrorLoyaltyCardJson.php")
 fetch("loyaltyCardInfoJson.php")
     .then((response) => response.json())
     .then((result) => {
-        let loyaltyCardInfor = result.loyaltyCardTable;
-        console.log(loyaltyCardInfor);
+        console.log(result);
 
+        let customers = result.Customer;
+        let loyaltyCardInfor = result.loyaltyCardTable;
+
+        // Populate dropdown with customer names
+        for (let i = 0; i < customers.length; i++) {
+            addOptions(customerIdEL, customers[i].CustomerID, customers[i].Name);
+        }
 
         //  Store customer IDs
         customerIds = loyaltyCardInfor.map(card => card.customerId);
@@ -128,8 +140,9 @@ fetch("loyaltyCardInfoJson.php")
         for (let i = 0; i < loyaltyCardInfor.length; i++) {
             addElInList(
                 loyaltyCardInfor[i].loyaltyCardId,
-                loyaltyCardInfor[i].customerId,
                 loyaltyCardInfor[i].point,
+                loyaltyCardInfor[i].customerId,
+                loyaltyCardInfor[i].customerName,
                 i
             );
         }
@@ -137,8 +150,9 @@ fetch("loyaltyCardInfoJson.php")
         if (loyaltyCardInfor.length > 0) {
             fillInputEl(
                 loyaltyCardInfor[0].loyaltyCardId,
-                loyaltyCardInfor[0].customerId,
-                loyaltyCardInfor[0].point
+                loyaltyCardInfor[0].point,
+                loyaltyCardInfor[0].customerId
+
             );
             activateDeactivatedForm(true);
 
@@ -164,8 +178,9 @@ updateBtn.addEventListener('click', () => {
         createSubmitBtn('Update');
         fillInputEl(
             prevEl.dataset.loyaltyCardId,
-            prevEl.dataset.customerId,
-            prevEl.dataset.point
+            prevEl.dataset.point,
+            prevEl.dataset.customerId
+
         );
     } else {
         alert("You didn't choose anything. Choose a loyalty card to update.");
@@ -228,8 +243,9 @@ listEl.addEventListener('click', event => {
 
     fillInputEl(
         currentEl.dataset.loyaltyCardId,
-        currentEl.dataset.customerId,
-        currentEl.dataset.point
+        currentEl.dataset.point,
+        currentEl.dataset.customerId
+
     );
 });
 

@@ -43,7 +43,7 @@ try {
 
     } elseif ($action === 'update') {
         $consultation = "UPDATE Loyalty_Card 
-                     SET Customer = '$CustomerID', Points = '$points' 
+                     SET CustomerID = '$CustomerID', Points = '$points' 
                      WHERE LoyaltyCardID = '$cardID'";
 
         if (!empty($connection)) {
