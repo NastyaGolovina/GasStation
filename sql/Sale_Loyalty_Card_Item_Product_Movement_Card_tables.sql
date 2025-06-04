@@ -91,8 +91,8 @@ INSERT INTO Movement_Card (Date, PointsQnt, CustomerID, LoyaltyCardID, PrizeProd
 ('2025-05-02', -50, 1, 1, 3, 1, 1);
 
 
-INSERT INTO Pump_Management (FuelLevel, FuelType, Status)  VALUES
-(60, Diesel, Active );
-(80, Petrol, Inactive );
+INSERT INTO Pump_Management (ID,FuelLevel, FuelType, Status)  VALUES
+(1,60, Diesel, Active );
+(2,80, Petrol, Inactive );
 
 

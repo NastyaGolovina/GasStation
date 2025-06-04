@@ -1,4 +1,5 @@
 // Elements for pump UI
+const pumpIdEL = document.getElementById('pumpID');
 const fuelLevelBarEl = document.getElementById('fuelLevel');
 const fuelTypeEl = document.getElementById('fuelType');
 const statusEl = document.getElementById('status');
@@ -9,12 +10,14 @@ const errorMsgEl = document.getElementById('errorMsg');
 let prevEl = null;
 
 function activatePumpForm(isDisabled) {
+    pumpIdEL.readOnly = true;
     fuelTypeEl.disabled = isDisabled;
     statusEl.disabled = isDisabled;
 }
 
-function fillInputEl(fuelLevel, fuelType, status) {
+function fillInputEl(pumpID, fuelLevel, fuelType, status) {
     const level = Math.max(0, Math.min(parseInt(fuelLevel), 100));
+    pumpIdEL.value = pumpID || '';
     fuelLevelBarEl.style.width = `${level}%`;
     fuelLevelBarEl.textContent = `${level}%`;
     fuelTypeEl.value = fuelType || '';
@@ -33,26 +36,24 @@ function showError(message) {
     errorMsgEl.innerText = message;
 }
 
-function addPumpToList(pump, i) {
+function addPumpToList(pumpID,fuelLevel ,fuelType,status,  i) {
     const aEl = document.createElement("a");
     const divHeader = document.createElement("div");
     const strongEl = document.createElement("strong");
     const divText = document.createElement("div");
 
     // Set dataset for click behavior
-    aEl.dataset.pumpId = pump.pumpID;
-    aEl.dataset.fuelLevel = pump.FuelLevel;
-    aEl.dataset.fuelType = pump.FuelType;
-    aEl.dataset.status = pump.Status;
+    aEl.dataset.pumpID = pumpID;
+    aEl.dataset.fuelLevel = fuelLevel;
+    aEl.dataset.fuelType = fuelType;
+    aEl.dataset.status = status;
 
     aEl.className = "list-group-item list-group-item-action py-3 lh-sm";
     divHeader.className = "d-flex w-100 align-items-center justify-content-between";
     strongEl.className = "mb";
     divText.className = "col-10 mb-1 small";
 
-
-    strongEl.innerText = name;
-    divText.innerText = `Type: ${pump.FuelType} | Status: ${pump.Status}`;
+    strongEl.innerText = `Type: ${fuelType} | Status: ${status}`;
     divHeader.appendChild(strongEl);
     aEl.appendChild(divHeader);
     aEl.appendChild(divText);
@@ -85,16 +86,20 @@ fetch("pumpInfoJson.php")
 
         for (let i = 0; i < pumpInfo.length; i++) {
             addPumpToList(
-                pumpInfo[i],
+                    pumpInfo[i].pumpID,
+                    pumpInfo[i].fuelLevel,
+                    pumpInfo[i].fuelType,
+                    pumpInfo[i].status,
                 i
             );
         }
 
         if (pumpInfo.length > 0) {
             fillInputEl(
-                pumpInfo[0].FuelLevel,
-                pumpInfo[0].FuelType,
-                pumpInfo[0].Status
+                pumpInfo[0].pumpID,
+                pumpInfo[0].fuelLevel,
+                pumpInfo[0].fuelType,
+                pumpInfo[0].status
             );
             activatePumpForm(true);
         }
@@ -118,6 +123,7 @@ pumpListEl.addEventListener("click", (event) => {
         currentEl.classList.add("active");
 
         fillInputEl(
+            currentEl.dataset.pumpID,
             currentEl.dataset.fuelLevel,
             currentEl.dataset.fuelType,
             currentEl.dataset.status
