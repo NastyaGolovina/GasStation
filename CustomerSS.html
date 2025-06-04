@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Schedule Service</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="icon" type="image/png" href="img/fuel-pump.svg" />
+    <link rel="stylesheet" href="header.css" />
+</head>
+<body>
+<header class="bg-primary p-3 mb-3 border-bottom">
+    <div class="container-fluid">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li class="nav-item"><a href="customerHome.html" class="nav-link link-light fw-bold px-2">Home</a></li>
+                <li class="nav-item"><a href="movementCard.html" class="nav-link link-light px-2">Movement Card</a></li>
+                <li class="nav-item"><a href="#" class="nav-link link-light px-2">Schedule Service</a></li>
+            </ul>
+            <div id="userName" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 text-white"></div>
+            <div class="dropdown text-end">
+                <a href="#" class="d-block text-decoration-none dropdown-toggle" style="filter: invert(1)" data-bs-toggle="dropdown">
+                    <img src="img/person-circle.svg" alt="user" width="32" height="32" class="rounded-circle" />
+                </a>
+                <ul class="dropdown-menu text-small">
+                    <li><a class="dropdown-item" href="login.html">Sign out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="alert alert-danger alert-dismissible fade show" id="errorMsg" role="alert" style="display: none">
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="d-flex flex-column bg-body-tertiary" style="width: 100%;">
+                <div class="d-flex align-items-center p-3 border-bottom">
+                    <span class="fs-5 fw-semibold">Customer Date Service</span>
+                </div>
+                <div id="SSlist" class="list-group list-group-flush border-bottom" style="max-height: 79vh; overflow-y: auto;"></div>
+            </div>
+        </div>
+
+        <div class="mt-3 mb-3 col-md-8">
+            <div class="btn-group" role="group">
+                <button type="button" id="create" class="btn btn-outline-primary">Create</button>
+                <button type="button" id="update" class="btn btn-outline-primary">Update</button>
+                <button type="button" id="delete" class="btn btn-outline-primary">Delete</button>
+            </div>
+
+            <div class="mt-3 container">
+                <h4 class="mb-3">Schedule Service</h4>
+                <form class="needs-validation">
+                    <div class="row g-3">
+                        <div class="col-sm-12">
+                            <label for="dt" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="dt" required disabled />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="serv">Service</label>
+                            <select class="form-select" id="serv" name="service_id" required disabled>
+                                <option selected>Select Service</option>
+                                <option value=""></option>
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <label for="dst" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="dst" required disabled />
+                        </div>
+
+                        <div class="mb-3">
+                            <label >Customer</label>
+                            <select class="form-select" id="cst" name="customer_id" disabled>
+                                <option selected>select</option>
+                            </select>
+
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status">Status</label>
+                            <select class="form-select" id="status" name="status" required disabled>
+                                <option selected>Select Status</option>
+                                <option value="Scheduled">Scheduled</option>
+                                <option value="Unscheduled">Unscheduled</option>
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="es">Employee Service</label>
+                            <select class="form-select" id="es" name="emp_ser" disabled >
+                                <option selected>select</option>
+                                <option value=""></option>
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <label for="mt" class="form-label">Material</label>
+                            <input type="text" class="form-control" id="mt" name="material" disabled >
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="CustomerSS.js"></script>
+<script src="headerName.js"></script>
+</body>
+</html>

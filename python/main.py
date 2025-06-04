@@ -5,6 +5,9 @@ from datetime import date
 
 
 varList = []
+functions = {}
+employeeGlobal = ''
+stopProcessing = False
 
 mydb = mysql.connector.connect(
         host="localhost",
@@ -29,6 +32,7 @@ reserved = {
     "reason": "RESERVED_REASON",
     "material": "RESERVED_MATERIAL",
     "def": "RESERVED_FUNCTION",
+    "end_def": "RESERVED_END_OF_FUNCTION",
     "date": "RESERVED_DATE",
     "to": "RESERVED_TO",
     "query": "RESERVED_QUERY",
@@ -91,6 +95,13 @@ def t_error(t):
     )
     t.lexer.skip(1)
 
+def showError(msg, lineno):
+    global stopProcessing
+    if lineno == 0:
+        print("Error : "+msg)    
+    else :
+        print("Error at line "+str(lineno)+": "+msg)
+    stopProcessing = True
 
 def find_column(input, token):
     line_start = input.rfind("\n", 0, token.lexpos) + 1
@@ -106,21 +117,93 @@ def p_start(p):
 
 def p_statement(p):
     """
-    statement : availabilityRule
+    statement : defRule
+              | availabilityRule
               | unavailabilityRule
+              | funcRunRule             
               | queryRule
+              | setEmployee
               | var
+              | error_sent
     """
 
+def p_def(p):
+    """
+      defRule : RESERVED_FUNCTION funcName LPAREN RPAREN COLON funcExpr RESERVED_END_OF_FUNCTION
+    """
+    fname = p[2]
+    fexpr = p[6]
+    def run_func(funcName = fname,expr = fexpr):
+            func_code_run(funcName,expr)
+    functions[fname] = run_func
+
+def p_def_error(p):
+    """
+      defRule : RESERVED_FUNCTION error LPAREN RPAREN COLON funcExpr RESERVED_END_OF_FUNCTION
+    """
+    showError("Invalid function declaration", p.lineno(1))
+
+def p_funcName(p):
+    """
+      funcName : STRING
+    """
+    p[0] = p[1]
+
+def p_funcRun(p):
+    """
+      funcRunRule : funcName LPAREN RPAREN SEMICOLON
+    """
+    fname = p[1]
+    if fname in functions:
+        functions[fname]()
+    else :
+        showError("Function "+str(fname)+" does not exist", p.lineno(2))
+
+
+def func_code_run(funcName, expr):
+    #print("run "+str(expr)+" function code")
+    if expr != None:
+        match expr[0]:
+            case 'UNAV' : 
+                run_unavailability((expr[1], expr[2]))
+            case 'AV' :
+                run_availability((expr[1], expr[2], expr[3], expr[4]))
+            case _:
+                showError("Operation "+str(expr[0])+" is not supported in function "+str(funcName))
+    
+
+def p_funcExpr(p):
+    """
+    funcExpr : unavailabilityRule
+             | availabilityRule
+    """
+    p[0] = p[1]
 
 def p_Unavailability(p):
     """
       unavailabilityRule : RESERVED_SET RESERVED_UNAVAILABILITY COLON \
-                         RESERVED_DATE COLON dateRule SEMICOLON \
+                         RESERVED_DATE COLON dateRule COMMA\
                          RESERVED_REASON COLON sentence SEMICOLON
     """
-    print('unavailability rule work')
+    #print('unavailability rule work')
+    dateRule = p[6]
+    reason = p[10]
+    p[0]=('UNAV', dateRule, reason)
+    if isFuncDeclaration(p) == False :
+        run_unavailability((dateRule, reason))
 
+def p_Unavailability_error(p):
+    """
+      unavailabilityRule : RESERVED_SET  RESERVED_UNAVAILABILITY COLON error SEMICOLON
+    """
+    showError("Wrong use of Unavailability", p.lineno(1))
+
+def run_unavailability(parm):
+    global stopProcessing
+    if stopProcessing:
+        return
+    # unavailability execution
+    print (str(parm) + " unavailability code work")
 
 def p_dates(p):
     """
@@ -137,14 +220,83 @@ def p_date(p):
     my_date = date.fromisoformat(p[1])
     p[0] = (my_date, None)
 
+def p_set_employee(p):
+    """
+    setEmployee : RESERVED_EMPLOYEE COLON strWithQuotas SEMICOLON
+    """  
+    global employeeGlobal
+    employeeGlobal = p[3]
+
+def p_set_employee_error(p):
+    """
+    setEmployee : RESERVED_EMPLOYEE COLON error SEMICOLON
+    """  
+    showError("Wrong use of employee assignment", p.lineno(2))
+
 def p_Availability(p):
     """
       availabilityRule : RESERVED_SET RESERVED_AVAILABILITY COLON \
-                         RESERVED_DAYS COLON daysRule SEMICOLON \
+                         RESERVED_DAYS COLON daysRule COMMA \
+                         RESERVED_EMPLOYEE COLON strWithQuotas COMMA \
+                         RESERVED_HOURS COLON TIME MINUS TIME SEMICOLON
+                       | RESERVED_SET RESERVED_AVAILABILITY COLON \
+                         RESERVED_DAYS COLON daysRule COMMA \
                          RESERVED_HOURS COLON TIME MINUS TIME SEMICOLON
     """
-    print('availability rule work')
+    #print('availability rule work')
+    dateRule = ''
+    employee = ''
+    timeFrom = ''
+    timeTo = ''
+    plen = len(p)
+    if len(p) == 18 :
+        # days, employee, hours
+        if p[4] == "days" and p[8] == "employee" and p[12] == "hours" :
+            dateRule = p[6]  
+            employee = p[10]  
+            timeFrom = p[14]
+            timeTo = p[16]
+        else :
+            showError("Wrong sequence of arguments in Availability function",p.lineno(1))
+            raise SyntaxError
+    elif len(p) == 14 :
+            # days, hours
+            if p[4] == "days" and p[8] == "hours" :
+                dateRule = p[6]
+                employee = ''
+                timeFrom = p[10]
+                timeTo = p[12]
+            else :
+                showError('Wrong sequence of arguments in Availability function', p.lineno(1))
+                raise SyntaxError
+    else :
+        showError ('Wrong number of arguments in Availability function', p.lineno(1))
+        raise SyntaxError
 
+    p[0] = ('AV', employee, dateRule, timeFrom, timeTo)
+    if isFuncDeclaration(p) == False :
+        run_availability((employee, dateRule, timeFrom, timeTo))
+
+
+def p_Availability_error(p):
+    """
+      availabilityRule : RESERVED_SET RESERVED_AVAILABILITY COLON error SEMICOLON
+    """
+    showError("Wrong use of Availability", p.lineno(1))
+
+def isFuncDeclaration(p) :
+    for stackItem in p.stack :
+        if stackItem.type == "RESERVED_FUNCTION" :
+            return True
+    return False
+
+def run_availability(parm):
+    if stopProcessing:
+        return
+    if parm[0] == '' :
+        parm = (employeeGlobal, parm[1], parm[2], parm[3])
+    # availability execution
+    print (str(parm) + " availability code work")
 
 def p_days(p):
     """
@@ -164,6 +316,12 @@ def p_word(p):
     sentence : STRING
     """
     p[0] = p[1]
+
+def p_strWithQuotas(p):
+    """
+    strWithQuotas : QUOTE STRING QUOTE
+    """
+    p[0] = p[2]
 
 def p_arrEls(p):
     """
@@ -197,10 +355,12 @@ def p_var(p):
 def p_query(p):
     """
     queryRule : RESERVED_QUERY COLON \
-            RESERVED_TYPE COLON RESERVED_SERVICES SEMICOLON \
-            RESERVED_PERIOD COLON dateRule SEMICOLON \
+            RESERVED_TYPE COLON RESERVED_SERVICES COMMA \
+            RESERVED_PERIOD COLON dateRule COMMA \
             RESERVED_FILTER COLON RESERVED_TYPE EQUALS QUOTE sentence QUOTE SEMICOLON
     """
+    if stopProcessing:
+        return
     try:
         start_date, end_date = p[9]
         if not end_date:
@@ -226,35 +386,76 @@ def p_query(p):
             print('No result')
 
     except mysql.connector.Error as err:
-        print("SQL Error:", err)
+        showError("SQL Error:" + err, p.lineno[1])
 
+def p_query_error(p):
+    """
+    queryRule : RESERVED_QUERY COLON error SEMICOLON
+    """
+    showError("Wrong use of query", p.lineno(1))
+
+def p_sentance_error(p):
+    """
+    error_sent : error SEMICOLON
+    """
+    showError("Syntax error", p.lineno(2))
+
+def p_error(p):
+    if not p:
+        showError("Unexpected end of file", 0)
 
 lexer = lex.lex()
 parser = yacc.yacc()
 
-test_string = """set availability:
-                days: Monday to Friday;
-                hours: 08:00-12:00;
+#test_string = """set availability:
+#                days: Monday to Friday;
+#                hours: 08:00-12:00;
+#
+#                set unavailability:
+#                date: 2025-04-10 to 2025-04-12;
+#                reason: vacation;
+#
+#                query:
+#                type: services;
+#                period: 2025-01-01 to 2025-07-20;
+#                filter: type == "Fuel Refill";
+#                
+#                query:
+#                type: services;
+#                period:  2025-01-01 to 2025-07-20;
+#                filter: type == "Car Wash";
+#                
+#                employees_dayoff = ["John", "Anna", "Carlos"];
+#                employees_dayoff = ["John"];
+#                employees_dayoff = ["John", "Anna", "Carlos", "Anna", "Carlos"];
+#                employees = ["John", "Anna", "Carlos"];
+#                emp = ["John", "Anna", "Carlos"];
+#                """
 
-                set unavailability:
-                date: 2025-04-10 to 2025-04-12;
-                reason: vacation;
+test_string = """def myfuncAV(): 
+                    set availability: 
+                        days: Monday to Friday,
+                        hours: 08:00-12:00; 
+                 end_def
 
+                 def myfuncUNAV(): 
+                    set unavailability:
+                        date: 2025-01-01 to 2025-01-12,
+                        reason: vacation;
+                 end_def
+                 employee: "angel123";
+                 set unavailability:
+                    date: 2025-04-10 to 2025-04-12,
+                    reason: sickLeave;
+                 employees_dayoff = ["John", "Anna", "Carlos"];
+                 myfuncAV();
+                 myfuncUNAV();
+                 
+                 
                 query:
-                type: services;
-                period: 2025-01-01 to 2025-07-20;
+                type: services,
+                period: 2025-01-01 to 2025-07-20,
                 filter: type == "Fuel Refill";
-                
-                query:
-                type: services;
-                period:  2025-01-01 to 2025-07-20;
-                filter: type == "Car Wash";
-                
-                employees_dayoff = ["John", "Anna", "Carlos"];
-                employees_dayoff = ["John"];
-                employees_dayoff = ["John", "Anna", "Carlos", "Anna", "Carlos"];
-                employees = ["John", "Anna", "Carlos"];
-                emp = ["John", "Anna", "Carlos"];
                 """
 
 parser.parse(test_string)

@@ -33,7 +33,7 @@
                 } elseif ($row['PermissionID'] == 'OPERATOR') {
                     header('location:operatorHomePage.html');
                 } elseif ($row['PermissionID'] == 'STATION_MANAGER') {
-//                    header('location:customerHome.html');
+                    header('location:stationManagementHomePage.html');
                 } else {
                     header('location:login.html');
                     $_SESSION["UserID"] = "";
