@@ -92,7 +92,8 @@ INSERT INTO Movement_Card (Date, PointsQnt, CustomerID, LoyaltyCardID, PrizeProd
 
 
 INSERT INTO Pump_Management (ID,FuelLevel, FuelType, Status)  VALUES
-(1,60, Diesel, Active );
-(2,80, Petrol, Inactive );
+(1,60, 'Diesel', 'Active' );
+(2,80, 'Petrol', 'Inactive' );
+(3,86, 'Petrol', 'Maintenance' );
 
 
