@@ -43,4 +43,3 @@ if (!empty($connection)) {
 $tablesToJson['loyaltyCardTable'] = $loyaltyCards;
 $tablesToJson['Customer'] = $customers;
 echo json_encode($tablesToJson);
-
