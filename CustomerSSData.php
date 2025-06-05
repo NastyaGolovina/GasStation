@@ -5,6 +5,8 @@ include('DBConnection.php');
 header('Content-Type: application/json');
 
 error_reporting(0);
+$user_id = isset($_SESSION['UserID']) ? (int)$_SESSION['UserID'] : 0;
+$tablesToJson =[];
 
 // Check connection
 if (!$connection) {
@@ -14,15 +16,17 @@ if (!$connection) {
 }
 
 $query = "
-    SELECT 
-        ss.*,
-        s.Name AS ServiceName,
-        u.Name AS EmployeeServiceName,
-        c.Name AS CustomerName
-    FROM ScheduleService ss
-    LEFT JOIN service s ON ss.ServiceID = s.ServiceID
-    LEFT JOIN User u ON ss.EmployeeService = u.UserID
-    LEFT JOIN User c ON ss.CustomerID = c.UserID
+   SELECT 
+    ss.*,
+    s.Name AS ServiceName,
+    u.Name AS EmployeeServiceName,
+    cu.Name AS CustomerName
+FROM ScheduleService ss
+LEFT JOIN service s ON ss.ServiceID = s.ServiceID
+LEFT JOIN User u ON ss.EmployeeService = u.UserID
+LEFT JOIN Customer c ON ss.CustomerID = c.CustomerID
+LEFT JOIN User cu ON c.UserID = cu.UserID
+WHERE ss.CustomerID = (SELECT CustomerID FROM Customer WHERE UserID = ".$user_id.");
 ";
 
 $result = mysqli_query($connection, $query);
