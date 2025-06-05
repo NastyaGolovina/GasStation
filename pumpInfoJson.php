@@ -5,9 +5,9 @@ header('Content-Type: application/json');
 $pumpInfo= [];
 $query = "SELECT 
             PumpID AS pumpID,
-            FuelLevel,
-            FuelType,
-            Status
+            FuelLevel AS fuelLevel,
+            FuelType AS fuelType,
+            Status AS status
           FROM Pump_Management";
 
 if (!empty($connection)) {
