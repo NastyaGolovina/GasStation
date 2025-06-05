@@ -144,7 +144,7 @@ function fetchAndRenderSchedules() {
                     serviceid: item.ServiceID,
                     description: item.Description,
                     customer: item.CustomerID,
-                    customerName: item.CustomerName,  // add this field from backend
+                    customerName: item.CustomerName,
                     status: item.Status,
                     employeeservice: item.EmployeeService,
                     material: item.Material,
@@ -170,7 +170,7 @@ function fetchAndRenderSchedules() {
                         serviceid: item.ServiceID,
                         description: item.Description,
                         customer: item.CustomerID,
-                        customerName: item.CustomerName,  // set customer name
+                        customerName: item.CustomerName,
                         status: item.Status,
                         employeeservice: item.EmployeeService,
                         material: item.Material,
