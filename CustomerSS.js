@@ -27,10 +27,7 @@ function fetchCustomersForCreate() {
         .then(data => {
             console.log(data);
             custEl.innerHTML = "";
-            // For create, load only one user - assuming getCustomers.php returns only logged-in user or filter first
             if (data.customers && data.customers.length > 0) {
-                // If multiple users returned, pick the one matching logged-in user id here if you know it
-                // For now, just pick the first user (you can customize filtering if needed)
                 const user = data.customers[0];
                 const option = document.createElement("option");
                 option.value = user.CustomerID;
