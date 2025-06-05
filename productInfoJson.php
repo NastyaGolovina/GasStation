@@ -1,16 +1,16 @@
 <?php
-     include ('DBConnection.php');
+include ('DBConnection.php');
 header('Content-Type: application/json');
 $product = [];
 $consultation = "SELECT 
                     ProductID AS productInforID,
-                    Name AS ProductName,
-                    Price,
-                    Stock,
-                    Description,
-                    Type,
-                    ExpirationDate,
-                    MinStock
+                    Name AS productName,
+                    Price AS price, 
+                    Stock AS stock,
+                    Description AS description,
+                    Type AS type,
+                    ExpirationDate AS expirationDate,
+                    MinStock AS minStock
                  FROM Product";
 
 if (!empty($connection)) {

@@ -1,5 +1,5 @@
 // Elements for form inputs
-const productNameEl = document.getElementById('productname');
+const productNameEl = document.getElementById('productName');
 const priceEL = document.getElementById('price');
 const stockEL = document.getElementById('stock');
 const descriptionEL = document.getElementById('desc');
@@ -25,7 +25,7 @@ function activateDeactivatedForm(isDisabled) {
     descriptionEL.disabled = isDisabled;
     typeEL.disabled = isDisabled;
     expirationDateEL.disabled = true;
-    minStockEL.disabled = isDisabled;
+    minStockEL.disabled = true;
 }
 
 function cleanInputEl() {
@@ -61,34 +61,35 @@ function fillInputEl(productName, price, stock, description, type, expirationDat
     expirationDateEL.value = expirationDate || '';
     minStockEL.value = minStock || '';
 
-   // updateConditionalFields();
+    updateConditionalFields();
 }
 
 
 
-function addElInList(id, name, price, stock, description, type,expirationDate,minStock, i) {
+function addElInList(productInforID, productName, price, stock, description, type,expirationDate,minStock, i) {
     const aEl = document.createElement("a");
     const divHeader = document.createElement("div");
     const strongEl = document.createElement("strong");
     const divText = document.createElement("div");
 
-    aEl.dataset.dataProductName = name;
-    aEl.dataset.dataProductPrice = price;
-    aEl.dataset.dataProductStock = stock;
-    aEl.dataset.dataProductDescription = description;
-    aEl.dataset.dataProductType = type;
-    aEl.dataset.dataProductInforId = id;
-    aEl.dataset.dataProductExpirationDate = expirationDate;
-    aEl.dataset.dataProductMinStock = minStock;
+    //aEl.dataset.productInforID = productInforID;
+    aEl.dataset.id= productInforID;
+    aEl.dataset.productName = productName;
+    aEl.dataset.price = price;
+    aEl.dataset.stock = stock;
+    aEl.dataset.description = description;
+    aEl.dataset.type = type;
+    aEl.dataset.expirationDate = expirationDate;
+    aEl.dataset.minStock = minStock;
 
     aEl.className = "list-group-item list-group-item-action py-3 lh-sm";
     divHeader.className = "d-flex w-100 align-items-center justify-content-between";
     strongEl.className = "mb";
     divText.className = "col-10 mb-1 small";
 
-    strongEl.innerText = name;
+    strongEl.innerText = productName;
     divHeader.appendChild(strongEl);
-    divText.innerText = description; // fixed from undefined 'login' to 'description'
+    divText.innerText = description;
     aEl.appendChild(divHeader);
     aEl.appendChild(divText);
     listEl.appendChild(aEl);
@@ -149,6 +150,8 @@ fetch("DBErrorProductJson.php")
         }
     });
 
+//function refreshProductList() {
+   // listEl.innerHTML = '';
 fetch("productInfoJson.php")
     .then((response) => response.json())
     .then((result) => {
@@ -158,13 +161,13 @@ fetch("productInfoJson.php")
         for (let i = 0; i < productInfor.length; i++) {
             addElInList(
                 productInfor[i].productInforID,
-                productInfor[i].ProductName,
-                productInfor[i].Price,
-                productInfor[i].Stock,
-                productInfor[i].Description,
-                productInfor[i].Type,
-                productInfor[i].ExpirationDate,
-                productInfor[i].MinStock,
+                productInfor[i].productName,
+                productInfor[i].price,
+                productInfor[i].stock,
+                productInfor[i].description,
+                productInfor[i].type,
+                productInfor[i].expirationDate,
+                productInfor[i].minStock,
                 i
             );
         }
@@ -172,18 +175,19 @@ fetch("productInfoJson.php")
         if (productInfor.length > 0) {
             activateDeactivatedForm(true);
                 fillInputEl(
-                    productInfor[0].ProductName,
-                    productInfor[0].Price,
-                    productInfor[0].Stock,
-                    productInfor[0].Description,
-                    productInfor[0].Type,
-                    productInfor[0].ExpirationDate,
-                    productInfor[0].MinStock
+                    productInfor[0].productName,
+                    productInfor[0].price,
+                    productInfor[0].stock,
+                    productInfor[0].description,
+                    productInfor[0].type,
+                    productInfor[0].expirationDate,
+                    productInfor[0].minStock
         );
             updateConditionalFields();
 
         }
     });
+//}
 
 //create
 createBtn.addEventListener('click', event => {
@@ -202,6 +206,7 @@ updateBtn.addEventListener('click', event => {
 
     if (prevEl !== null) {
         activateDeactivatedForm(false); // Enable form fields
+        updateConditionalFields();
 
         // Enable expiration date only for product types
         if (typeEL.value === "Product") {
@@ -213,15 +218,15 @@ updateBtn.addEventListener('click', event => {
         if (prevIsCreate) {
             prevIsCreate = false;
             fillInputEl(
-                prevEl.dataset.dataProductName,
-                prevEl.dataset.dataProductPrice,
-                prevEl.dataset.dataProductStock,
-                prevEl.dataset.dataProductDescription,
-                prevEl.dataset.dataProductType,
-                prevEl.dataset.dataProductExpirationDate,
-                prevEl.dataset.dataProductMinStock
+                prevEl.dataset.productName,
+                prevEl.dataset.price,
+                prevEl.dataset.stock,
+                prevEl.dataset.description,
+                prevEl.dataset.type,
+                prevEl.dataset.expirationDate,
+                prevEl.dataset.minStock
             );
-            // updateConditionalFields();
+            updateConditionalFields();
         }
 
     } else {
@@ -241,13 +246,21 @@ deleteBtn.addEventListener('click', () => {
           removeBtn();
           activateDeactivatedForm(true);
             if (confirm("Do you want to delete this product?")) {
-                fetch(`operatorProduct.php?product_id=${prevEl.dataset.dataProductInforId}&action=delete`, {
+
+                const productId = prevEl.dataset.id;
+
+                fetch(`operatorProduct.php?product_id=${productId}&action=delete`, {
+
+                    //fetch(`operatorProduct.php?product_id=${prevEl.dataset.productInforID}&action=delete`, {
                     method: 'POST'
                 })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            alert("Product deleted successfully!");
+                            location.reload();
+                            //refreshProductList();
+                            //alert("Product deleted successfully!");
+                            //location.reload();
                         } else {
                             alert(data.error || "Failed to delete product.");
                         }
@@ -273,19 +286,20 @@ listEl.addEventListener('click', event => {
     let currentEl = event.target;
     while (!currentEl.classList.contains('list-group-item')) {
         currentEl = currentEl.parentNode;
+        if (currentEl === null) return;
     }
 
     prevEl = currentEl;
     currentEl.classList.add('active');
 
     fillInputEl (
-        currentEl.dataset.dataProductName,
-        currentEl.dataset.dataProductPrice,
-        currentEl.dataset.dataProductStock,
-        currentEl.dataset.dataProductDescription,
-        currentEl.dataset.dataProductType,
-        currentEl.dataset.dataProductExpirationDate,
-        currentEl.dataset.dataProductMinStock
+        currentEl.dataset.productName,
+        currentEl.dataset.price,
+        currentEl.dataset.stock,
+        currentEl.dataset.description,
+        currentEl.dataset.type,
+        currentEl.dataset.expirationDate,
+        currentEl.dataset.minStock
     );
 
 });
@@ -334,7 +348,7 @@ function updateConditionalFields() {
 
                 // Price validation
                 if (priceEL.value === '' || priceEL.value < 0) {
-                    setInvalid(priceEl, 'Price must be a positive number.');
+                    setInvalid(priceEL, 'Price must be a positive number.');
                     isValid = false;
                 }
 
@@ -346,14 +360,14 @@ function updateConditionalFields() {
 
                 // Type validation
                 if (typeEL.value !== 'Fuel' && typeEL.value !== 'Product') {
-                    setInvalid(typeEl, 'Choose a valid type.');
+                    setInvalid(typeEL, 'Choose a valid type.');
                     isValid = false;
                 }
 
                 // Conditional validation
                 if (typeEL.value === 'Fuel') {
                     if (minStockEL.value === '' || minStockEL.value < 0) {
-                        setInvalid(minStockEl, 'Set a valid minimum stock value.');
+                        setInvalid(minStockEL, 'Set a valid minimum stock value.');
                         isValid = false;
                     }
                 } else if (typeEL.value === 'Product') {
@@ -365,7 +379,7 @@ function updateConditionalFields() {
 
                 if (isValid) {
                     const formData = new FormData();
-                    formData.append("productname", productNameEl.value);
+                    formData.append("productName", productNameEl.value);
                     formData.append("price", priceEL.value);
                     formData.append("stock", stockEL.value);
                     formData.append("description", descriptionEL.value);
@@ -375,7 +389,7 @@ function updateConditionalFields() {
 
                     let url = `operatorProduct.php?action=${actionType}`;
                     if (actionType === 'update') {
-                        url += `&product_id=${prevEl.dataset.dataProductInforId}`;
+                        url += `&product_id=${prevEl.dataset.id}`;
                     }
 
                     fetch(url, {
@@ -385,10 +399,12 @@ function updateConditionalFields() {
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
-                                alert("Product saved successfully!");
-                                cleanInputEl();
-                                activateDeactivatedForm(true);
-                                removeBtn();
+                                //refreshProductList();
+                                //alert("Product saved successfully!");
+                                //cleanInputEl();
+                                //activateDeactivatedForm(true);
+                                //removeBtn();
+                                location.reload();
                             } else {
                                 alert(data.error || "Operation failed.");
                             }
@@ -401,4 +417,5 @@ function updateConditionalFields() {
             }
         }
     });
+
 

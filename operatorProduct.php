@@ -13,10 +13,14 @@ try {
       $expirationDate = isset($_POST['expirationDate']) ? $_POST['expirationDate'] : null;
       $minStock = isset($_POST['minStock']) ? $_POST['minStock'] : null;
 
-      $action = isset($_GET['action']) ? $_GET['action'] : '';
-      $productId = isset($_GET['product_id']) ? $_GET['product_id'] : null;
+      //$action = isset($_POST['action']) ? $_GET['action'] : '';
+      //$productId = isset($_POST['product_id']) ? $_GET['product_id'] : null;
 
-      // Define a function to handle errors
+    $action = $_POST['action'] ?? $_GET['action'] ?? '';
+    $productId = $_POST['product_id'] ?? $_GET['product_id'] ?? null;
+
+
+    // Define a function to handle errors
       function setError($message)
       {
           echo json_encode(['success' => false, 'error' => $message]);
