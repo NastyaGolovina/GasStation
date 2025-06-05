@@ -25,6 +25,7 @@ function fetchCustomersForCreate() {
     fetch("getCustomers.php")
         .then(res => res.json())
         .then(data => {
+            console.log(data);
             custEl.innerHTML = "";
             // For create, load only one user - assuming getCustomers.php returns only logged-in user or filter first
             if (data.customers && data.customers.length > 0) {
@@ -51,6 +52,7 @@ function fetchServices() {
     fetch("getServices.php")
         .then(res => res.json())
         .then(data => {
+            console.log(data);
             serviceEl.innerHTML = `<option value="">Select Service</option>`;
             data.services.forEach(service => {
                 const option = document.createElement("option");
@@ -65,6 +67,7 @@ function fetchEmployeeServices() {
     fetch("getEmployeeServices.php")
         .then(res => res.json())
         .then(data => {
+            console.log(data);
             empServEl.innerHTML = `<option value="">Select Employee Service</option>`;
             data.employees.forEach(emp => {
                 const option = document.createElement("option");
@@ -125,9 +128,10 @@ function createSubmitBtn(text, id = "btn-submit") {
 }
 
 function fetchAndRenderSchedules() {
-    fetch("ScheduleServiceData.php")
+    fetch("CustomerSSData.php")
         .then(res => res.json())
         .then(data => {
+            console.log(data)
             listEl.innerHTML = "";
             const items = data.ScheduleServiceTable || [];
 
