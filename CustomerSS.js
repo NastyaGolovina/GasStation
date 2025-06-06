@@ -208,7 +208,7 @@ listEl.addEventListener("click", e => {
         serviceid: el.dataset.serviceid,
         description: el.dataset.description,
         customer: el.dataset.customer,
-        customerName: el.dataset.customerName,  // pass customer name
+        customerName: el.dataset.customerName,
         status: el.dataset.status,
         employeeservice: el.dataset.employeeservice,
         material: el.dataset.material,
@@ -231,7 +231,7 @@ createBtnEl.addEventListener("click", () => {
     removeSubmitBtn();
     createSubmitBtn("Create", "btn-submit-create");
     deleteBtnEl.disabled = true;
-    fetchCustomersForCreate();  // fill customer dropdown with logged-in user only
+    fetchCustomersForCreate();
 });
 
 document.addEventListener("click", e => {
