@@ -27,10 +27,7 @@ function fetchCustomersForCreate() {
         .then(data => {
             console.log(data);
             custEl.innerHTML = "";
-            // For create, load only one user - assuming getCustomers.php returns only logged-in user or filter first
             if (data.customers && data.customers.length > 0) {
-                // If multiple users returned, pick the one matching logged-in user id here if you know it
-                // For now, just pick the first user (you can customize filtering if needed)
                 const user = data.customers[0];
                 const option = document.createElement("option");
                 option.value = user.CustomerID;
@@ -144,7 +141,7 @@ function fetchAndRenderSchedules() {
                     serviceid: item.ServiceID,
                     description: item.Description,
                     customer: item.CustomerID,
-                    customerName: item.CustomerName,  // add this field from backend
+                    customerName: item.CustomerName,
                     status: item.Status,
                     employeeservice: item.EmployeeService,
                     material: item.Material,
@@ -170,7 +167,7 @@ function fetchAndRenderSchedules() {
                         serviceid: item.ServiceID,
                         description: item.Description,
                         customer: item.CustomerID,
-                        customerName: item.CustomerName,  // set customer name
+                        customerName: item.CustomerName,
                         status: item.Status,
                         employeeservice: item.EmployeeService,
                         material: item.Material,
@@ -211,7 +208,7 @@ listEl.addEventListener("click", e => {
         serviceid: el.dataset.serviceid,
         description: el.dataset.description,
         customer: el.dataset.customer,
-        customerName: el.dataset.customerName,  // pass customer name
+        customerName: el.dataset.customerName,
         status: el.dataset.status,
         employeeservice: el.dataset.employeeservice,
         material: el.dataset.material,
@@ -234,7 +231,7 @@ createBtnEl.addEventListener("click", () => {
     removeSubmitBtn();
     createSubmitBtn("Create", "btn-submit-create");
     deleteBtnEl.disabled = true;
-    fetchCustomersForCreate();  // fill customer dropdown with logged-in user only
+    fetchCustomersForCreate();
 });
 
 document.addEventListener("click", e => {

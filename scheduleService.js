@@ -32,8 +32,8 @@ function fetchServices() {
         });
 }
 
-    function fetchCustomers() {
-    fetch("getCustomers.php")
+    function fetchCustomer() {
+    fetch("ssGetCustomers.php")
         .then(res => res.json())
         .then(data => {
             custEl.innerHTML = `<option value="">Select Customer</option>`;
@@ -253,8 +253,7 @@ function fetchServices() {
 }
 });
 
-    // Initialize everything on page load
     fetchServices();
-    fetchCustomers();
+    fetchCustomer();
     fetchEmployeeServices();
     fetchAndRenderSchedules();

@@ -86,13 +86,14 @@
 
                         <div class="mb-3">
                             <label for="status">Status</label>
-                            <select class="form-select" id="status" name="status" required disabled>
-                                <option selected>Select Status</option>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="" disabled selected>Select Status</option>
                                 <option value="Scheduled">Scheduled</option>
                                 <option value="Unscheduled">Unscheduled</option>
                             </select>
-                            <div class="invalid-feedback"></div>
+                            <div class="invalid-feedback">Please select a status.</div>
                         </div>
+
 
                         <div class="mb-3">
                             <label for="es">Employee Service</label>

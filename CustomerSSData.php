@@ -1,14 +1,15 @@
 <?php
 global $connection;
 include('DBConnection.php');
+session_start();
 
 header('Content-Type: application/json');
 
-error_reporting(0);
-$user_id = isset($_SESSION['UserID']) ? (int)$_SESSION['UserID'] : 0;
-$tablesToJson =[];
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Check connection
+$user_id = isset($_SESSION['UserID']) ? (int)$_SESSION['UserID'] : 0;
+
 if (!$connection) {
     http_response_code(500);
     echo json_encode(['error' => 'Database connection failed']);
@@ -26,7 +27,7 @@ LEFT JOIN service s ON ss.ServiceID = s.ServiceID
 LEFT JOIN User u ON ss.EmployeeService = u.UserID
 LEFT JOIN Customer c ON ss.CustomerID = c.CustomerID
 LEFT JOIN User cu ON c.UserID = cu.UserID
-WHERE ss.CustomerID = (SELECT CustomerID FROM Customer WHERE UserID = ".$user_id.");
+WHERE ss.CustomerID = (SELECT CustomerID FROM Customer WHERE UserID = $user_id)
 ";
 
 $result = mysqli_query($connection, $query);
@@ -42,6 +43,5 @@ while ($row = mysqli_fetch_assoc($result)) {
     $scheduleService[] = $row;
 }
 
-// Return JSON response
 echo json_encode(['ScheduleServiceTable' => $scheduleService]);
 exit;
