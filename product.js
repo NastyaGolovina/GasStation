@@ -240,6 +240,7 @@ deleteBtn.addEventListener('click', () => {
     console.log(prevIsCreate);
     if(prevIsCreate) {
      prevIsCreate = false;
+        window.location.reload();
     } else {
         console.log(prevIsCreate);
         removeErrorMessage();
