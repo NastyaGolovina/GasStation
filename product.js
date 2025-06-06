@@ -58,10 +58,11 @@ function fillInputEl(productName, price, stock, description, type, expirationDat
         typeEL.value = '';
     }
 
+    updateConditionalFields();
+
     expirationDateEL.value = expirationDate || '';
     minStockEL.value = minStock || '';
 
-    updateConditionalFields();
 }
 
 
@@ -313,9 +314,11 @@ function updateConditionalFields() {
     if (selectedType === "Product") {
         expirationDateEL.disabled = false;
         minStockEL.disabled = true;
+        minStockEL.value = '';
     } else if (selectedType === "Fuel") {
         minStockEL.disabled = false;
         expirationDateEL.disabled = true;
+        expirationDateEL.value = '';
     } else {
         expirationDateEL.disabled = true;
         minStockEL.disabled = true;
