@@ -1159,7 +1159,7 @@ test_string5 = """  employee: "Harry Potter";
                     end_batch
                 """
 
-instr = parser.parse(test_string3)
+instr = parser.parse(test_string11)
 print(instr)
 if parser.errorok == True:
     print("Run interpreter")
