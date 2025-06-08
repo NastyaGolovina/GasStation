@@ -123,7 +123,7 @@ def t_error(t):
     print(
         "Character Unknown '%s'" % t.value[0],
         " on line %d" % t.lineno,
-        " and column %d" % find_column(test_string, t),
+        " and column %d" % find_column(sys.argv[1], t),
     )
     t.lexer.skip(1)
 
